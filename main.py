@@ -1,16 +1,30 @@
-# This is a sample Python script.
+import tkinter as tk
+from tkinter import ttk
+from ttkthemes import ThemedTk
+from PIL import Image, ImageTk
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+# A fő ablak létrehozása
+root = ThemedTk(theme="elegance")
+root.title("CLIPTIMIZER")
+root.geometry("1920x1080")
+root.configure(bg='#696969')
 
+# Kép betöltése és beállítása ikonként
+icon_image = Image.open("images/cliptimizer.png")
+icon_photo = ImageTk.PhotoImage(icon_image)
+root.iconphoto(True, icon_photo)
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# Funkciók+
+def quit_program():
+    root.quit()
 
+# Stílusok és betűtípusok beállítása
+style = ttk.Style()
+style.configure('Quit.TButton', font=('Helvetica', 12, 'bold'))
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('Zsombey')
+# A "kilépés" gomb
+quit_button = ttk.Button(root, text="Kilépés", command=quit_program, style='Quit.TButton')
+quit_button.pack(side=tk.BOTTOM, pady=30)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# A Tkinter event loop elindítása
+root.mainloop()
