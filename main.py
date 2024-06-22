@@ -1,30 +1,73 @@
 import tkinter as tk
-from tkinter import ttk
-from ttkthemes import ThemedTk
-from PIL import Image, ImageTk
+from tkinter import PhotoImage
+import database
+import home
+import contact
 
-# A fő ablak létrehozása
-root = ThemedTk(theme="elegance")
-root.title("CLIPTIMIZER")
-root.geometry("1920x1080")
-root.configure(bg='#696969')
 
-# Kép betöltése és beállítása ikonként
-icon_image = Image.open("images/cliptimizer.png")
-icon_photo = ImageTk.PhotoImage(icon_image)
-root.iconphoto(True, icon_photo)
+class MainApplication(tk.Tk):
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
 
-# Funkciók+
-def quit_program():
-    root.quit()
+        # Az alapvető dolgok
+        self.geometry('1920x1080')
+        self.title('Cliptimizer')
+        self.iconbitmap('images/cliptimizer.ico')
+        self.configure(bg='black')
 
-# Stílusok és betűtípusok beállítása
-style = ttk.Style()
-style.configure('Quit.TButton', font=('Helvetica', 12, 'bold'))
+        # Menu bar
+        menu_bar_panel = tk.Frame(self, bg='white', width=80)
+        menu_bar_panel.pack(side=tk.LEFT, fill=tk.Y, pady=4, padx=5)
 
-# A "kilépés" gomb
-quit_button = ttk.Button(root, text="Kilépés", command=quit_program, style='Quit.TButton')
-quit_button.pack(side=tk.BOTTOM, pady=30)
+        # Ikonok
+        self.home_image = PhotoImage(file='images/home_resized.png')
+        self.contact_image = PhotoImage(file='images/envelope_resized.png')
+        self.database_image = PhotoImage(file='images/database_resized.png')
 
-# A Tkinter event loop elindítása
-root.mainloop()
+        # A gombok
+        home_button = tk.Button(menu_bar_panel, image=self.home_image, bg='white', bd=0, command=self.show_home)
+        home_button.pack(pady=(10, 10))
+
+        database_button = tk.Button(menu_bar_panel, image=self.database_image, bg='white', bd=0,
+                                    command=self.show_database)
+        database_button.pack(pady=(10, 10))
+
+        contact_button = tk.Button(menu_bar_panel, image=self.contact_image, bg='white', bd=0,
+                                   command=self.show_contact)
+        contact_button.pack(pady=(10, 10))
+
+        # Container más oldalak tartalmára
+        self.pages_container = tk.Frame(self, bg='white')
+        self.pages_container.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+
+        # Alapértelmezett ablak
+        self.current_page = None
+        self.show_home()
+
+    # A home ablak
+    def show_home(self):
+        if self.current_page:
+            self.current_page.pack_forget()
+
+        self.current_page = home.HomePage(self.pages_container)
+        self.current_page.pack(fill=tk.BOTH, expand=True)
+
+    # A contact ablak
+    def show_contact(self):
+        if self.current_page:
+            self.current_page.pack_forget()
+
+        self.current_page = contact.ContactPage(self.pages_container)
+        self.current_page.pack(fill=tk.BOTH, expand=True)
+
+    def show_database(self):
+        if self.current_page:
+            self.current_page.pack_forget()
+
+        self.current_page = database.DatabasePage(self.pages_container)
+        self.current_page.pack(fill=tk.BOTH, expand=True)
+
+
+if __name__ == "__main__":
+    app = MainApplication()
+    app.mainloop()
