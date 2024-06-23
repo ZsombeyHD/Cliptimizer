@@ -7,7 +7,6 @@ class SearchDatabasePage(tk.Frame):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
 
-        # Felső címke a kereső oldal tetején
         label = tk.Label(self, text="Adat keresése", bg='white', font=('Arial', 20, 'bold'), padx=20, pady=20)
         label.pack(anchor=tk.N)
 
