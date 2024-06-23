@@ -2,15 +2,23 @@ import tkinter as tk
 import sqlite3
 
 
-class DatabasePage(tk.Frame):
+class SearchDatabasePage(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
 
-        label = tk.Label(self, text="Eddig fellőtt adatok", bg='white', font=('Arial', 20, 'bold'), padx=20, pady=20)
+        # Felső címke a kereső oldal tetején
+        label = tk.Label(self, text="Adat keresése", bg='white', font=('Arial', 20, 'bold'), padx=20, pady=20)
         label.pack(anchor=tk.N)
 
-        # Vászon és görgősáv létrehozása
+        # Kereső mező és gomb elhelyezése
+        self.search_entry = tk.Entry(self, font=('Arial', 14))
+        self.search_entry.pack(pady=10)
+
+        search_button = tk.Button(self, text="Keresés", command=self.search_data)
+        search_button.pack(pady=10)
+
+        # Vászon és görgetősáv
         self.canvas = tk.Canvas(self, bg='white')
         self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.scrollable_frame = tk.Frame(self.canvas, bg='white')
@@ -28,15 +36,24 @@ class DatabasePage(tk.Frame):
         self.canvas.pack(side="left", fill="both", expand=True)
         self.scrollbar.pack(side="right", fill="y")
 
+        # Adatbázis kapcsolat
         self.conn = sqlite3.connect('cliptimizer.db')
-        self.display_data()
 
-    # Adatbázis kapcsolat nyitása, lekérdezés, feldolgozása, szépítése
-    def display_data(self):
+    def search_data(self):
+        # Meghívódik a Keresés gombra kattintva
+        search_term = self.search_entry.get()
+
+        # Törli a korábbi keresési eredményeket
+        for widget in self.scrollable_frame.winfo_children():
+            widget.destroy()
+
+        # Keresés
         cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM contacts")
+        cursor.execute("SELECT * FROM contacts WHERE name LIKE ? OR email LIKE ?",
+                       (f'%{search_term}%', f'%{search_term}%'))
         rows = cursor.fetchall()
 
+        # Eredmények megjelenítése
         for row in rows:
             frame = tk.Frame(self.scrollable_frame, bg='black', bd=1)
             frame.pack(pady=5, padx=10, fill=tk.X)
@@ -54,3 +71,14 @@ class DatabasePage(tk.Frame):
     def __del__(self):
         if self.conn:
             self.conn.close()
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.geometry('1920x1080')
+
+    # SearchDatabasePage létrehozása és megjelenítése
+    search_page = SearchDatabasePage(root)
+    search_page.pack(fill=tk.BOTH, expand=True)
+
+    root.mainloop()
