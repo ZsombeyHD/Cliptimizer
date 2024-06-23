@@ -76,7 +76,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.geometry('1920x1080')
 
-    # SearchDatabasePage létrehozása és megjelenítése
+    # A SearchDatabasePage
     search_page = SearchDatabasePage(root)
     search_page.pack(fill=tk.BOTH, expand=True)
 

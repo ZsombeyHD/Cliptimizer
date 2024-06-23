@@ -35,7 +35,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.geometry('1920x1080')
 
-    # Középre igazított HomePage létrehozása és megjelenítése
+    # A HomePage
     home_page = HomePage(root)
     home_page.pack(fill=tk.BOTH, expand=True)
 
