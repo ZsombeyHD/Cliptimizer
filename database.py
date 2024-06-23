@@ -7,7 +7,7 @@ class DatabasePage(tk.Frame):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
 
-        label = tk.Label(self, text="Eddig fellőtt adatok", bg='white', font=('Arial', 20, 'bold'), padx=20, pady=20)
+        label = tk.Label(self, text="Eddig fellőtt adatok", bg='white', font=('Helvetica', 20, 'bold'), padx=20, pady=20)
         label.pack(anchor=tk.N)
 
         # Vászon és görgősáv létrehozása
@@ -41,13 +41,13 @@ class DatabasePage(tk.Frame):
             frame = tk.Frame(self.scrollable_frame, bg='black', bd=1)
             frame.pack(pady=5, padx=10, fill=tk.X)
 
-            id_label = tk.Label(frame, text=f"ID: {row[0]}", bg='white', font=('Arial', 12))
+            id_label = tk.Label(frame, text=f"ID: {row[0]}", bg='white', font=('Helvetica', 12))
             id_label.pack(side=tk.LEFT, padx=5, pady=5)
 
-            name_label = tk.Label(frame, text=f"Name: {row[1]}", bg='white', font=('Arial', 12))
+            name_label = tk.Label(frame, text=f"Name: {row[1]}", bg='white', font=('Helvetica', 12))
             name_label.pack(side=tk.LEFT, padx=5, pady=5)
 
-            email_label = tk.Label(frame, text=f"Email: {row[2]}", bg='white', font=('Arial', 12))
+            email_label = tk.Label(frame, text=f"Email: {row[2]}", bg='white', font=('Helvetica', 12))
             email_label.pack(side=tk.LEFT, padx=5, pady=5)
 
     # Destruktor, ha létezik

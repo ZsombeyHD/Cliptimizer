@@ -7,14 +7,14 @@ class SearchDatabasePage(tk.Frame):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
 
-        label = tk.Label(self, text="Adat keresése", bg='white', font=('Arial', 20, 'bold'), padx=20, pady=20)
+        label = tk.Label(self, text="Adat keresése", bg='white', font=('Helvetica', 20, 'bold'), padx=20, pady=20)
         label.pack(anchor=tk.N)
 
         # Kereső mező és gomb elhelyezése
-        self.search_entry = tk.Entry(self, font=('Arial', 14))
+        self.search_entry = tk.Entry(self, font=('Helvetica', 14))
         self.search_entry.pack(pady=10)
 
-        search_button = tk.Button(self, text="Keresés", command=self.search_data)
+        search_button = tk.Button(self, text="Keresés", font=('Helvetica', 12), command=self.search_data)
         search_button.pack(pady=10)
 
         # Vászon és görgetősáv
@@ -57,13 +57,13 @@ class SearchDatabasePage(tk.Frame):
             frame = tk.Frame(self.scrollable_frame, bg='black', bd=1)
             frame.pack(pady=5, padx=10, fill=tk.X)
 
-            id_label = tk.Label(frame, text=f"ID: {row[0]}", bg='white', font=('Arial', 12))
+            id_label = tk.Label(frame, text=f"ID: {row[0]}", bg='white', font=('Helvetica', 12))
             id_label.pack(side=tk.LEFT, padx=5, pady=5)
 
-            name_label = tk.Label(frame, text=f"Name: {row[1]}", bg='white', font=('Arial', 12))
+            name_label = tk.Label(frame, text=f"Name: {row[1]}", bg='white', font=('Helvetica', 12))
             name_label.pack(side=tk.LEFT, padx=5, pady=5)
 
-            email_label = tk.Label(frame, text=f"Email: {row[2]}", bg='white', font=('Arial', 12))
+            email_label = tk.Label(frame, text=f"Email: {row[2]}", bg='white', font=('Helvetica', 12))
             email_label.pack(side=tk.LEFT, padx=5, pady=5)
 
     # Destruktor, ha létezik

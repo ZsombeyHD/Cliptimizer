@@ -29,7 +29,8 @@ class MainApplication(tk.Tk):
         self.robot_image = PhotoImage(file='images/robot_resized.png')
 
         # A gombok definiálása
-        home_button = tk.Button(menu_bar_panel, image=self.home_image, bg='white', bd=0, command=self.show_home)
+        home_button = tk.Button(menu_bar_panel, image=self.home_image, bg='white', bd=0,
+                                command=self.show_home)
         home_button.pack(pady=(10, 10))
 
         database_button = tk.Button(menu_bar_panel, image=self.database_image, bg='white', bd=0,
@@ -40,7 +41,8 @@ class MainApplication(tk.Tk):
                                   command=self.search_database)
         search_button.pack(pady=(10, 10))
 
-        robot_button = tk.Button(menu_bar_panel, image=self.robot_image, bg='white', bd=0, command=self.show_robot)
+        robot_button = tk.Button(menu_bar_panel, image=self.robot_image, bg='white', bd=0,
+                                 command=self.show_robot)
         robot_button.pack(pady=(10, 10))
 
         contact_button = tk.Button(menu_bar_panel, image=self.contact_image, bg='white', bd=0,

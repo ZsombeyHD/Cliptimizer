@@ -22,12 +22,12 @@ class HomePage(tk.Frame):
         image_label.pack(side=tk.TOP, padx=20, pady=10)
 
         # Fő szöveg
-        title_label = tk.Label(top_frame, text="CLIPTIMIZER", bg='white', font=('Arial', 50, 'bold'))
+        title_label = tk.Label(top_frame, text="CLIPTIMIZER", bg='white', font=('Helvetica', 50, 'bold'))
         title_label.pack(expand=True)
 
         # Alsó szöveg
         subtitle_label = tk.Label(top_frame, text="NP Hungária festőüzemének gyártástervezője", bg='white',
-                                  font=('Arial', 20), padx=20, pady=10)
+                                  font=('Helvetica', 20), padx=20, pady=10)
         subtitle_label.pack(pady=(10, 0))
 
 
