@@ -21,11 +21,10 @@ class HomePage(tk.Frame):
         image_label = tk.Label(top_frame, image=self.clip_image, bg='white')
         image_label.pack(side=tk.TOP, padx=20, pady=10)
 
-        # Cím
+        # Cím és alsó szöveg
         title_label = tk.Label(top_frame, text="CLIPTIMIZER", bg='white', font=('Helvetica', 50, 'bold'))
         title_label.pack(expand=True)
 
-        # Alsó szöveg
         subtitle_label = tk.Label(top_frame, text="NP Hungária festőüzemének gyártástervezője", bg='white',
                                   font=('Helvetica', 20), padx=20, pady=10)
         subtitle_label.pack(pady=(10, 0))

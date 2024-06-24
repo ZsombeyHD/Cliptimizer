@@ -70,7 +70,7 @@ class MainApplication(tk.Tk):
         self.current_page = None
         self.show_home()
 
-    # A metódusok
+    # A metódusok -> oldal megjelenítése, esetleges jelenlegi oldal elrejtése, létrehozás és containerben megjelenítés
     def show_home(self):
         if self.current_page:
             self.current_page.pack_forget()

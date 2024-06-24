@@ -21,7 +21,7 @@ if __name__ == "__main__":
     root.geometry('1920x1080')
     root.title('robot.py')
 
-    # A SearchDatabasePage
+    # A RobotPage
     home_page = RobotPage(root)
     home_page.pack(fill=tk.BOTH, expand=True)
 

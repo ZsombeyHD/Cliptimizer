@@ -59,7 +59,7 @@ class DatabasePage(tk.Frame):
             self.conn.close()
 
 
-# A databse.py közvetlen elindítása
+# A database.py közvetlen elindítása
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry('1920x1080')
