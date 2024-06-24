@@ -7,7 +7,7 @@ class SearchDatabasePage(tk.Frame):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
 
-        label = tk.Label(self, text="Adat keresése", bg='white', font=('Helvetica', 20, 'bold'), padx=20, pady=20)
+        label = tk.Label(self, text="ADAT KERESÉSE", bg='white', font=('Helvetica', 20, 'bold'), padx=20, pady=20)
         label.pack(anchor=tk.N)
 
         # Kereső mező és gomb elhelyezése
@@ -70,14 +70,3 @@ class SearchDatabasePage(tk.Frame):
     def __del__(self):
         if self.conn:
             self.conn.close()
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.geometry('1920x1080')
-
-    # A SearchDatabasePage
-    search_page = SearchDatabasePage(root)
-    search_page.pack(fill=tk.BOTH, expand=True)
-
-    root.mainloop()

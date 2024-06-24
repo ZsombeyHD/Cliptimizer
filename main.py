@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import PhotoImage
+
+import add
 import home
 import contact
 import database
@@ -27,6 +29,7 @@ class MainApplication(tk.Tk):
         self.database_image = PhotoImage(file='images/database_resized.png')
         self.search_image = PhotoImage(file='images/search_resized.png')
         self.robot_image = PhotoImage(file='images/robot_resized.png')
+        self.add_image = PhotoImage(file='images/add_resized.png')
 
         # A gombok definiálása
         home_button = tk.Button(menu_bar_panel, image=self.home_image, bg='white', bd=0,
@@ -40,6 +43,10 @@ class MainApplication(tk.Tk):
         search_button = tk.Button(menu_bar_panel, image=self.search_image, bg='white', bd=0,
                                   command=self.search_database)
         search_button.pack(pady=(10, 10))
+
+        add_button = tk.Button(menu_bar_panel, image=self.add_image, bg='white', bd=0,
+                               command=self.add_database)
+        add_button.pack(pady=(10, 10))
 
         robot_button = tk.Button(menu_bar_panel, image=self.robot_image, bg='white', bd=0,
                                  command=self.show_robot)
@@ -81,6 +88,12 @@ class MainApplication(tk.Tk):
             self.current_page.pack_forget()
         self.current_page = search.SearchDatabasePage(self.pages_container)
         self.current_page.pack(fill=tk.BOTH, expand=True)
+
+    def add_database(self):
+        if self.current_page:
+            self.current_page.pack_forget()
+            self.current_page = add.AddDatabasePage(self.pages_container)
+            self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_robot(self):
         if self.current_page:
