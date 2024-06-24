@@ -63,7 +63,20 @@ class SearchDatabasePage(tk.Frame):
             email_label = tk.Label(frame, text=f"Email: {row[2]}", bg='white', font=('Helvetica', 12))
             email_label.pack(side=tk.LEFT, padx=5, pady=5)
 
-    # Destruktor, ha létezik
+    # Destruktor
     def __del__(self):
         if self.conn:
             self.conn.close()
+
+
+# A search.py közvetlen elindítása
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.geometry('1920x1080')
+    root.title('search.py')
+
+    # A SearchDatabasePage
+    home_page = SearchDatabasePage(root)
+    home_page.pack(fill=tk.BOTH, expand=True)
+
+    root.mainloop()

@@ -31,9 +31,11 @@ class HomePage(tk.Frame):
         subtitle_label.pack(pady=(10, 0))
 
 
+# A home.py közvetlen elindítása
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry('1920x1080')
+    root.title('home.py')
 
     # A HomePage
     home_page = HomePage(root)

@@ -51,3 +51,15 @@ class ContactPage(tk.Frame):
                                 cursor="hand2")
         twitter_link.pack(pady=5)
         twitter_link.bind("<Button-1>", lambda e: webbrowser.open_new("https://twitter.com/ZsombeyHD"))
+
+
+# A contact.py közvetlen elindítása
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.geometry('1920x1080')
+    root.title('contact.py')
+
+    contact_page = ContactPage(root)
+    contact_page.pack(fill=tk.BOTH, expand=True)
+
+    root.mainloop()

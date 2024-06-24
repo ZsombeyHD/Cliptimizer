@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import PhotoImage
 
 import add
+import delete
 import home
 import contact
 import database
@@ -30,6 +31,7 @@ class MainApplication(tk.Tk):
         self.search_image = PhotoImage(file='images/search_resized.png')
         self.robot_image = PhotoImage(file='images/robot_resized.png')
         self.add_image = PhotoImage(file='images/add_resized.png')
+        self.delete_image = PhotoImage(file='images/delete_resized.png')
 
         # A gombok
         home_button = tk.Button(menu_bar_panel, image=self.home_image, bg='white', bd=0,
@@ -47,6 +49,10 @@ class MainApplication(tk.Tk):
         add_button = tk.Button(menu_bar_panel, image=self.add_image, bg='white', bd=0,
                                command=self.add_database)
         add_button.pack(pady=(10, 10))
+
+        delete_button = tk.Button(menu_bar_panel, image=self.delete_image, bg='white', bd=0,
+                                  command=self.delete_database)
+        delete_button.pack(pady=(10, 10))
 
         robot_button = tk.Button(menu_bar_panel, image=self.robot_image, bg='white', bd=0,
                                  command=self.show_robot)
@@ -95,6 +101,12 @@ class MainApplication(tk.Tk):
             self.current_page = add.AddDatabasePage(self.pages_container)
             self.current_page.pack(fill=tk.BOTH, expand=True)
 
+    def delete_database(self):
+        if self.current_page:
+            self.current_page.pack_forget()
+            self.current_page = delete.DeleteDatabasePage(self.pages_container)
+            self.current_page.pack(fill=tk.BOTH, expand=True)
+
     def show_robot(self):
         if self.current_page:
             self.current_page.pack_forget()
@@ -102,7 +114,7 @@ class MainApplication(tk.Tk):
             self.current_page.pack(fill=tk.BOTH, expand=True)
 
 
-# Az alkalmazás elindítása
+# A main.py fájl közvetlen elindítása
 if __name__ == "__main__":
     app = MainApplication()
     app.mainloop()
