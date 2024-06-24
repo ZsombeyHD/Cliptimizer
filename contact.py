@@ -8,7 +8,7 @@ class ContactPage(tk.Frame):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
 
-        # Elérhetőségek kiírása
+        # Az elérhetőségek kiírása
         contact_label = ttk.Label(self, text="KAPCSOLATTARTÓ INFORMÁCIÓK", font=('Helvetica', 20, 'bold'))
         contact_label.pack(pady=(100, 50))
 

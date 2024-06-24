@@ -10,14 +10,14 @@ class SearchDatabasePage(tk.Frame):
         label = tk.Label(self, text="ADAT KERESÉSE", bg='white', font=('Helvetica', 20, 'bold'), padx=20, pady=20)
         label.pack(anchor=tk.N)
 
-        # Kereső mező és gomb elhelyezése
+        # A kereső mező és gomb
         self.search_entry = tk.Entry(self, font=('Helvetica', 14))
         self.search_entry.pack(pady=10)
 
         search_button = tk.Button(self, text="Keresés", font=('Helvetica', 12), command=self.search_data)
         search_button.pack(pady=10)
 
-        # Vászon és görgetősáv
+        # A canvas és scrollbar
         self.canvas = tk.Canvas(self, bg='white')
         self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.scrollable_frame = tk.Frame(self.canvas, bg='white')
@@ -35,24 +35,21 @@ class SearchDatabasePage(tk.Frame):
         self.canvas.pack(side="left", fill="both", expand=True)
         self.scrollbar.pack(side="right", fill="y")
 
-        # Adatbázis kapcsolat
+        # Az adatbázis kapcsolat
         self.conn = sqlite3.connect('cliptimizer.db')
 
+    # Keresés gomb után meghívódik; Korábbi kereséseket töröl, keres, keresési eredmények
     def search_data(self):
-        # Meghívódik a Keresés gombra kattintva
         search_term = self.search_entry.get()
 
-        # Törli a korábbi keresési eredményeket
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
-        # Keresés
         cursor = self.conn.cursor()
         cursor.execute("SELECT * FROM contacts WHERE name LIKE ? OR email LIKE ?",
                        (f'%{search_term}%', f'%{search_term}%'))
         rows = cursor.fetchall()
 
-        # Eredmények megjelenítése
         for row in rows:
             frame = tk.Frame(self.scrollable_frame, bg='black', bd=1)
             frame.pack(pady=5, padx=10, fill=tk.X)

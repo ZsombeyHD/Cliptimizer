@@ -23,7 +23,7 @@ class MainApplication(tk.Tk):
         menu_bar_panel = tk.Frame(self, bg='white', width=80)
         menu_bar_panel.pack(side=tk.LEFT, fill=tk.Y, pady=4, padx=5)
 
-        # Az ikonok definiálása
+        # Az ikonok
         self.home_image = PhotoImage(file='images/home_resized.png')
         self.contact_image = PhotoImage(file='images/envelope_resized.png')
         self.database_image = PhotoImage(file='images/database_resized.png')
@@ -31,7 +31,7 @@ class MainApplication(tk.Tk):
         self.robot_image = PhotoImage(file='images/robot_resized.png')
         self.add_image = PhotoImage(file='images/add_resized.png')
 
-        # A gombok definiálása
+        # A gombok
         home_button = tk.Button(menu_bar_panel, image=self.home_image, bg='white', bd=0,
                                 command=self.show_home)
         home_button.pack(pady=(10, 10))
@@ -64,7 +64,7 @@ class MainApplication(tk.Tk):
         self.current_page = None
         self.show_home()
 
-    # A metódusok definiálása
+    # A metódusok
     def show_home(self):
         if self.current_page:
             self.current_page.pack_forget()

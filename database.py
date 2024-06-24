@@ -10,7 +10,7 @@ class DatabasePage(tk.Frame):
         label = tk.Label(self, text="JELENLEGI ADATOK", bg='white', font=('Helvetica', 20, 'bold'), padx=20, pady=20)
         label.pack(anchor=tk.N)
 
-        # Vászon és görgetősáv létrehozása
+        # A canvas és scrollbar
         self.canvas = tk.Canvas(self, bg='white')
         self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.scrollable_frame = tk.Frame(self.canvas, bg='white')
@@ -31,9 +31,8 @@ class DatabasePage(tk.Frame):
         self.conn = sqlite3.connect('cliptimizer.db')
         self.display_data()
 
-    # Adatbázis kapcsolat nyitása, lekérdezés, feldolgozása, szépítése
+    # Adatbázis kapcsolat nyitása, lekérdezése, feldolgozása, szépítése, korábbi adatok törlése
     def display_data(self):
-        # Korábbi adatok törlése
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
