@@ -5,8 +5,6 @@ class HomePage(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
-
-        # Középre igazított fő keret
         self.pack(fill=tk.BOTH, expand=True)
 
         # Top frame a nagy szöveg és a kép számára

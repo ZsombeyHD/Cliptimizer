@@ -41,7 +41,7 @@ class DeleteDatabasePage(tk.Frame):
                 widget.display_data()
 
     def __del__(self):
-        """Destruktor."""
+        """Destruktor, ha van nyitott kapcsolat."""
         if self.conn:
             self.conn.close()
 

@@ -25,7 +25,7 @@ class MainApplication(tk.Tk):
         self.iconbitmap('images/cliptimizer.ico')
         self.configure(bg='black')
 
-        # Az osztály attribútumainak inicializálása, init-en kívül figyelmeztetéseket adtak
+        # Az osztály attribútumainak inicializálása, __init__-en kívül figyelmeztetéseket adtak
         self.login_page = None
         self.home_image = None
         self.contact_image = None
@@ -107,8 +107,8 @@ class MainApplication(tk.Tk):
         self.show_home()
 
     def show_home(self):
-        """A HomePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése, létrehozás és
-                containerben megjelenítés."""
+        """A HomePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -117,8 +117,8 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_database(self):
-        """A DatabasePage mutatása (második ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-                létrehozás és containerben megjelenítés."""
+        """A DatabasePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -127,8 +127,8 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def search_database(self):
-        """A SearchDatabasePage mutatása (harmadik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-               létrehozás és containerben megjelenítés."""
+        """A SearchDatabassePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -137,8 +137,8 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def add_database(self):
-        """Az AddDatabasePage mutatása (negyedik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-               létrehozás és containerben megjelenítés."""
+        """Az AddDatabasePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -147,8 +147,8 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def edit_database(self):
-        """Az EditDatabasePage mutatása (ötödik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-               létrehozás és containerben megjelenítés."""
+        """Az EditDatabasePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -157,8 +157,8 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def delete_database(self):
-        """A DeleteDatabasePage mutatása (hatodik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-               létrehozás és containerben megjelenítés."""
+        """A DeleteDatabasePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -167,8 +167,8 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_robot(self):
-        """A RobotPage mutatása (hetedik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése, létrehozás
-                és containerben megjelenítés."""
+        """A RobotPage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -177,8 +177,8 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_contact(self):
-        """A ContactPage mutatása (nyolcadik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-                létrehozás és containerben megjelenítés."""
+        """A ContactPage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:

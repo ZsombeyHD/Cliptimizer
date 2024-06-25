@@ -44,7 +44,7 @@ class LoginPage(tk.Frame):
             messagebox.showerror("Error", "Hibás felhasználónév, vagy jelszó!")
 
     def __del__(self):
-        """Destruktor."""
+        """Destruktor, ha van nyitott kapcsolat."""
         if self.conn:
             self.conn.close()
 

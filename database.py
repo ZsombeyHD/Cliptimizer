@@ -7,6 +7,7 @@ class DatabasePage(tk.Frame):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
 
+        # A cím
         label = tk.Label(self, text="JELENLEGI ADATOK", bg='white', font=('Helvetica', 20, 'bold'), padx=20, pady=20)
         label.pack(anchor=tk.N)
 
@@ -28,6 +29,7 @@ class DatabasePage(tk.Frame):
         self.canvas.pack(side="left", fill="both", expand=True)
         self.scrollbar.pack(side="right", fill="y")
 
+        # Az adatbázis kapcsolat
         self.conn = sqlite3.connect('cliptimizer.db')
         self.display_data()
 
@@ -54,7 +56,7 @@ class DatabasePage(tk.Frame):
             email_label.pack(side=tk.LEFT, padx=5, pady=5)
 
     def __del__(self):
-        """Destruktor."""
+        """Destruktor, ha van nyitott kapcsolat."""
         if self.conn:
             self.conn.close()
 
