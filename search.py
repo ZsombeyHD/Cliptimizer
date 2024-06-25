@@ -39,7 +39,7 @@ class SearchDatabasePage(tk.Frame):
         self.conn = sqlite3.connect('cliptimizer.db')
 
     def search_data(self):
-        """Keresés gomb után meghívódik; Korábbi kereséseket töröl, keres, keresési eredményeket mutat"""
+        """Keresés gomb után meghívódik; Korábbi kereséseket töröl, keres, keresési eredményeket mutat."""
         search_term = self.search_entry.get()
 
         for widget in self.scrollable_frame.winfo_children():
@@ -64,7 +64,7 @@ class SearchDatabasePage(tk.Frame):
             email_label.pack(side=tk.LEFT, padx=5, pady=5)
 
     def __del__(self):
-        """Destruktor"""
+        """Destruktor."""
         if self.conn:
             self.conn.close()
 

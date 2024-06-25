@@ -32,7 +32,7 @@ class DatabasePage(tk.Frame):
         self.display_data()
 
     def display_data(self):
-        """Az adatbázis kapcsolat nyitása, lekérdezése, feldolgozása, szépítése, korábbi adatok törlése"""
+        """Az adatbázis kapcsolat nyitása, lekérdezése, feldolgozása, szépítése, korábbi adatok törlése."""
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
@@ -54,7 +54,7 @@ class DatabasePage(tk.Frame):
             email_label.pack(side=tk.LEFT, padx=5, pady=5)
 
     def __del__(self):
-        """Destruktor"""
+        """Destruktor."""
         if self.conn:
             self.conn.close()
 

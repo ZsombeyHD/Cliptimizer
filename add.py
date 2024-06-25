@@ -28,7 +28,7 @@ class AddDatabasePage(tk.Frame):
         self.conn = sqlite3.connect('cliptimizer.db')
 
     def add_data(self):
-        """Adatok begyűjtése, hozzáadása, beviteli mezők ürítése, frissítés a többi ablakban is"""
+        """Adatok begyűjtése, hozzáadása, beviteli mezők ürítése, frissítés a többi ablakban is."""
         name = self.name_entry.get()
         email = self.email_entry.get()
 
@@ -42,13 +42,13 @@ class AddDatabasePage(tk.Frame):
         self.update_pages()
 
     def update_pages(self):
-        """Frissítés más ablakokban"""
+        """Frissítés más ablakokban."""
         for widget in self.master.master.pages_container.winfo_children():
             if hasattr(widget, 'display_data'):
                 widget.display_data()
 
     def __del__(self):
-        """Destruktor"""
+        """Destruktor."""
         if self.conn:
             self.conn.close()
 
