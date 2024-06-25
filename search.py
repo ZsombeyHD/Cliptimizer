@@ -14,7 +14,7 @@ class SearchDatabasePage(tk.Frame):
         self.search_entry = tk.Entry(self, font=('Helvetica', 14))
         self.search_entry.pack(pady=10)
 
-        search_button = tk.Button(self, text="Keresés", font=('Helvetica', 12), command=self.search_data)
+        search_button = tk.Button(self, text="Keresés", font=('Helvetica', 14), command=self.search_data)
         search_button.pack(pady=10)
 
         # A canvas és scrollbar

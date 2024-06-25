@@ -3,6 +3,7 @@ from tkinter import PhotoImage
 
 import add
 import delete
+import edit
 import home
 import contact
 import database
@@ -32,6 +33,7 @@ class MainApplication(tk.Tk):
         self.robot_image = PhotoImage(file='images/robot_resized.png')
         self.add_image = PhotoImage(file='images/add_resized.png')
         self.delete_image = PhotoImage(file='images/delete_resized.png')
+        self.edit_image = PhotoImage(file='images/edit_resized.png')
 
         # Az ikonok, amik lényegében gombok is
         home_button = tk.Button(menu_bar_panel, image=self.home_image, bg='white', bd=0,
@@ -49,6 +51,10 @@ class MainApplication(tk.Tk):
         add_button = tk.Button(menu_bar_panel, image=self.add_image, bg='white', bd=0,
                                command=self.add_database)
         add_button.pack(pady=(10, 10))
+
+        edit_button = tk.Button(menu_bar_panel, image=self.edit_image, bg='white', bd=0,
+                                command=self.edit_database)
+        edit_button.pack(pady=(10, 10))
 
         delete_button = tk.Button(menu_bar_panel, image=self.delete_image, bg='white', bd=0,
                                   command=self.delete_database)
@@ -103,8 +109,16 @@ class MainApplication(tk.Tk):
             self.current_page = add.AddDatabasePage(self.pages_container)
             self.current_page.pack(fill=tk.BOTH, expand=True)
 
+    def edit_database(self):
+        """Az EditDatabasePage mutatása (ötödik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        létrehozás és containerben megjelenítés"""
+        if self.current_page:
+            self.current_page.pack_forget()
+            self.current_page = edit.EditDatabasePage(self.pages_container)
+            self.current_page.pack(fill=tk.BOTH, expand=True)
+
     def delete_database(self):
-        """A DeleteDatabasePage mutatása (ötödik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        """A DeleteDatabasePage mutatása (hatodik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
         létrehozás és containerben megjelenítés"""
         if self.current_page:
             self.current_page.pack_forget()
@@ -112,7 +126,7 @@ class MainApplication(tk.Tk):
             self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_robot(self):
-        """A RobotPage mutatása (hatodik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése, létrehozás
+        """A RobotPage mutatása (hetedik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése, létrehozás
         és containerben megjelenítés"""
         if self.current_page:
             self.current_page.pack_forget()
@@ -120,7 +134,7 @@ class MainApplication(tk.Tk):
             self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_contact(self):
-        """A ContactPage mutatása (hetedik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        """A ContactPage mutatása (nyolcadik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
         létrehozás és containerben megjelenítés"""
         if self.current_page:
             self.current_page.pack_forget()
