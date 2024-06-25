@@ -1,5 +1,4 @@
 import tkinter as tk
-from PIL import Image, ImageTk
 
 
 class HomePage(tk.Frame):
@@ -14,10 +13,8 @@ class HomePage(tk.Frame):
         top_frame = tk.Frame(self, bg='white')
         top_frame.pack(expand=True, pady=(100, 20))
 
-        # A kép betöltése és átméretezése
-        image = Image.open('images/cliptimizer.png')
-        resized_image = image.resize((200, 200), Image.LANCZOS)
-        self.clip_image = ImageTk.PhotoImage(resized_image)
+        # A kép
+        self.clip_image = tk.PhotoImage(file='images/cliptimizer.png')
         image_label = tk.Label(top_frame, image=self.clip_image, bg='white')
         image_label.pack(side=tk.TOP, padx=20, pady=10)
 
