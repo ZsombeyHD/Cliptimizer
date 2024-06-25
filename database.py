@@ -32,7 +32,7 @@ class DatabasePage(tk.Frame):
         self.display_data()
 
     def display_data(self):
-        """Adatbázis kapcsolat nyitása, lekérdezése, feldolgozása, szépítése, korábbi adatok törlése"""
+        """Az adatbázis kapcsolat nyitása, lekérdezése, feldolgozása, szépítése, korábbi adatok törlése"""
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
