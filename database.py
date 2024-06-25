@@ -31,8 +31,8 @@ class DatabasePage(tk.Frame):
         self.conn = sqlite3.connect('cliptimizer.db')
         self.display_data()
 
-    # Adatbázis kapcsolat nyitása, lekérdezése, feldolgozása, szépítése, korábbi adatok törlése
     def display_data(self):
+        """Adatbázis kapcsolat nyitása, lekérdezése, feldolgozása, szépítése, korábbi adatok törlése"""
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
@@ -53,8 +53,8 @@ class DatabasePage(tk.Frame):
             email_label = tk.Label(frame, text=f"Email: {row[2]}", bg='white', font=('Helvetica', 12))
             email_label.pack(side=tk.LEFT, padx=5, pady=5)
 
-    # Destruktor
     def __del__(self):
+        """Destruktor"""
         if self.conn:
             self.conn.close()
 

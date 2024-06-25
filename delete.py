@@ -22,8 +22,8 @@ class DeleteDatabasePage(tk.Frame):
         # Az adatbázis kapcsolat
         self.conn = sqlite3.connect('cliptimizer.db')
 
-    # Az adatok begyűjtése, törlése név alapján, beviteli mezők ürítése, frissítés a többi ablakban is
     def delete_data(self):
+        """Az adatok begyűjtése, törlése név alapján, beviteli mezők ürítése, frissítés a többi ablakban is"""
         name = self.name_entry.get()
 
         cursor = self.conn.cursor()
@@ -34,14 +34,14 @@ class DeleteDatabasePage(tk.Frame):
 
         self.update_pages()
 
-    # Frissítés más ablakokban
     def update_pages(self):
+        """Frissítés más ablakokban"""
         for widget in self.master.master.pages_container.winfo_children():
             if hasattr(widget, 'display_data'):
                 widget.display_data()
 
-    # Destruktor
     def __del__(self):
+        """Destruktor"""
         if self.conn:
             self.conn.close()
 

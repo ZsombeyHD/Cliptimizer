@@ -24,7 +24,7 @@ class MainApplication(tk.Tk):
         menu_bar_panel = tk.Frame(self, bg='white', width=80)
         menu_bar_panel.pack(side=tk.LEFT, fill=tk.Y, pady=4, padx=5)
 
-        # Az ikonok
+        # A bal oldalt található ikonok
         self.home_image = PhotoImage(file='images/home_resized.png')
         self.contact_image = PhotoImage(file='images/envelope_resized.png')
         self.database_image = PhotoImage(file='images/database_resized.png')
@@ -33,7 +33,7 @@ class MainApplication(tk.Tk):
         self.add_image = PhotoImage(file='images/add_resized.png')
         self.delete_image = PhotoImage(file='images/delete_resized.png')
 
-        # A gombok
+        # Az ikonok, amik lényegében gombok is
         home_button = tk.Button(menu_bar_panel, image=self.home_image, bg='white', bd=0,
                                 command=self.show_home)
         home_button.pack(pady=(10, 10))
@@ -70,47 +70,61 @@ class MainApplication(tk.Tk):
         self.current_page = None
         self.show_home()
 
-    # A metódusok -> oldal megjelenítése, esetleges jelenlegi oldal elrejtése, létrehozás és containerben megjelenítés
+    # A függvények
     def show_home(self):
+        """A HomePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése, létrehozás és
+        containerben megjelenítés"""
         if self.current_page:
             self.current_page.pack_forget()
         self.current_page = home.HomePage(self.pages_container)
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
-    def show_contact(self):
-        if self.current_page:
-            self.current_page.pack_forget()
-        self.current_page = contact.ContactPage(self.pages_container)
-        self.current_page.pack(fill=tk.BOTH, expand=True)
-
     def show_database(self):
+        """A ShowDatabasePage mutatása (második ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        létrehozás és containerben megjelenítés"""
         if self.current_page:
             self.current_page.pack_forget()
         self.current_page = database.DatabasePage(self.pages_container)
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def search_database(self):
+        """A SearchDatabasePage mutatása (harmadik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        létrehozás és containerben megjelenítés"""
         if self.current_page:
             self.current_page.pack_forget()
         self.current_page = search.SearchDatabasePage(self.pages_container)
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def add_database(self):
+        """Az AddDatabasePage mutatása (negyedik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        létrehozás és containerben megjelenítés"""
         if self.current_page:
             self.current_page.pack_forget()
             self.current_page = add.AddDatabasePage(self.pages_container)
             self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def delete_database(self):
+        """A DeleteDatabasePage mutatása (ötödik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        létrehozás és containerben megjelenítés"""
         if self.current_page:
             self.current_page.pack_forget()
             self.current_page = delete.DeleteDatabasePage(self.pages_container)
             self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_robot(self):
+        """A RobotPage mutatása (hatodik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése, létrehozás
+        és containerben megjelenítés"""
         if self.current_page:
             self.current_page.pack_forget()
             self.current_page = robot.RobotPage(self.pages_container)
+            self.current_page.pack(fill=tk.BOTH, expand=True)
+
+    def show_contact(self):
+        """A ContactPage mutatása (hetedik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        létrehozás és containerben megjelenítés"""
+        if self.current_page:
+            self.current_page.pack_forget()
+            self.current_page = contact.ContactPage(self.pages_container)
             self.current_page.pack(fill=tk.BOTH, expand=True)
 
 
