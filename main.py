@@ -10,6 +10,7 @@ import database
 import robot
 import search
 import login
+import list_creator
 
 
 class MainApplication(tk.Tk):
@@ -35,6 +36,7 @@ class MainApplication(tk.Tk):
         self.add_image = None
         self.delete_image = None
         self.edit_image = None
+        self.list_creator_image = None
         self.home_button = None
         self.contact_button = None
         self.database_button = None
@@ -43,6 +45,7 @@ class MainApplication(tk.Tk):
         self.edit_button = None
         self.delete_button = None
         self.robot_button = None
+        self.list_creator_button = None
         self.pages_container = None
         self.current_page = None
 
@@ -64,11 +67,16 @@ class MainApplication(tk.Tk):
         self.add_image = PhotoImage(file='images/add_resized.png')
         self.delete_image = PhotoImage(file='images/delete_resized.png')
         self.edit_image = PhotoImage(file='images/edit_resized.png')
+        self.list_creator_image = PhotoImage(file='images/list_resized.png')
 
         # Az ikonok, amik lényegében gombok is
         self.home_button = tk.Button(menu_bar_panel, image=self.home_image, bg='white', bd=0,
                                      command=self.show_home)
         self.home_button.pack(pady=(10, 10))
+
+        self.list_creator_button = tk.Button(menu_bar_panel, image=self.list_creator_image, bg='white', bd=0,
+                                             command=self.show_list_creator)
+        self.list_creator_button.pack(pady=(10, 10))
 
         self.database_button = tk.Button(menu_bar_panel, image=self.database_image, bg='white', bd=0,
                                          command=self.show_database)
@@ -116,9 +124,19 @@ class MainApplication(tk.Tk):
         self.current_page = home.HomePage(self.pages_container)
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
+    def show_list_creator(self):
+        """A ListCreatorPage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        ListCreatorPage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+        if not self.logged_in:
+            return
+        if self.current_page:
+            self.current_page.pack_forget()
+        self.current_page = list_creator.ListCreatorPage(self.pages_container)
+        self.current_page.pack(fill=tk.BOTH, expand=True)
+
     def show_database(self):
         """A DatabasePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+         DatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -128,7 +146,7 @@ class MainApplication(tk.Tk):
 
     def search_database(self):
         """A SearchDatabassePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+         SearchDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -138,7 +156,7 @@ class MainApplication(tk.Tk):
 
     def add_database(self):
         """Az AddDatabasePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+         AddDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -148,7 +166,7 @@ class MainApplication(tk.Tk):
 
     def edit_database(self):
         """Az EditDatabasePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+         EditDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -158,7 +176,7 @@ class MainApplication(tk.Tk):
 
     def delete_database(self):
         """A DeleteDatabasePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+         DeleteDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -168,7 +186,7 @@ class MainApplication(tk.Tk):
 
     def show_robot(self):
         """A RobotPage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+         RobotPage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -178,7 +196,7 @@ class MainApplication(tk.Tk):
 
     def show_contact(self):
         """A ContactPage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+         ContactPage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
