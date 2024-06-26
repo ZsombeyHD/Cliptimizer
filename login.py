@@ -26,6 +26,11 @@ class LoginPage(tk.Frame):
         login_button = tk.Button(self, text="Bejelentkezés", font=('Helvetica', 14), command=self.check_login)
         login_button.pack(pady=20)
 
+        # A kép
+        self.clip_image = tk.PhotoImage(file='images/cliptimizer.png')
+        clip_label = tk.Label(self, image=self.clip_image, bg='white')
+        clip_label.pack(pady=20)
+
         # Az adatbázis kapcsolat
         self.conn = sqlite3.connect('cliptimizer.db')
 
