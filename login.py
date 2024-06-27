@@ -9,10 +9,10 @@ class LoginPage(tk.Frame):
         self.app = app
         self.configure(bg='white')
 
-        # Felhasználónév és jelszó mezők
         label = tk.Label(self, text="BEJELENTKEZÉS", bg='white', font=('Helvetica', 20, 'bold'), padx=20, pady=20)
         label.pack(anchor=tk.N)
 
+        # A mezők és bejelentkezés gomb
         username_label = tk.Label(self, text="Felhasználónév:", bg='white', font=('Helvetica', 14))
         username_label.pack(pady=5)
         self.username_entry = tk.Entry(self, font=('Helvetica', 14))

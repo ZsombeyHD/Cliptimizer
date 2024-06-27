@@ -125,7 +125,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_list_creator(self):
-        """A ListCreatorPage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        """A ListCreatorPage mutatása (második ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
         ListCreatorPage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
@@ -135,7 +135,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_database(self):
-        """A DatabasePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        """A DatabasePage mutatása (harmadik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
          DatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
@@ -145,7 +145,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def search_database(self):
-        """A SearchDatabassePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        """A SearchDatabassePage mutatása (negyedik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
          SearchDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
@@ -155,7 +155,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def add_database(self):
-        """Az AddDatabasePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        """Az AddDatabasePage mutatása (ötödik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
          AddDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
@@ -165,7 +165,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def edit_database(self):
-        """Az EditDatabasePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        """Az EditDatabasePage mutatása (hatodik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
          EditDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
@@ -175,7 +175,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def delete_database(self):
-        """A DeleteDatabasePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        """A DeleteDatabasePage mutatása (hetedik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
          DeleteDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
@@ -185,7 +185,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_robot(self):
-        """A RobotPage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        """A RobotPage mutatása (nyolcadik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
          RobotPage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
@@ -195,7 +195,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_contact(self):
-        """A ContactPage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
+        """A ContactPage mutatása (utolsó ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
          ContactPage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
         if not self.logged_in:
             return
