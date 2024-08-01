@@ -1,16 +1,19 @@
 import tkinter as tk
 from tkinter import PhotoImage
 
+import pystray
+from PIL import Image
+
 import add
+import contact
+import database
 import delete
 import edit
 import home
-import contact
-import database
+import list_creator
+import login
 import robot
 import search
-import login
-import list_creator
 
 
 class MainApplication(tk.Tk):
@@ -25,8 +28,11 @@ class MainApplication(tk.Tk):
         self.title('Cliptimizer')
         self.iconbitmap('images/cliptimizer.ico')
         self.configure(bg='black')
+        self.tray_icon_image = Image.open('images/cliptimizer.png')
+        self.tray_icon = pystray.Icon("name", self.tray_icon_image, "Cliptimizer", self.create_tray_menu())
+        self.tray_icon.run_detached()
 
-        # Az osztály attribútumainak inicializálása, __init__-en kívül figyelmeztetéseket adtak
+        # Az osztály attribútumainak inicializálása
         self.login_page = None
         self.home_image = None
         self.contact_image = None
@@ -51,6 +57,23 @@ class MainApplication(tk.Tk):
 
         # Bejelentkezési ablak
         self.show_login()
+
+    def create_tray_menu(self):
+        """Tálcaikon menüje."""
+        menu = pystray.Menu(
+            pystray.MenuItem("Megnyitás", self.tray_show),
+            pystray.MenuItem("Kilépés", self.tray_quit)
+        )
+        return menu
+
+    def tray_show(self):
+        """Az alkalmazás megjelenítése a tálcaikonról."""
+        self.deiconify()
+
+    def tray_quit(self):
+        """Az alkalmazás bezárása a tálcaikonról."""
+        self.tray_icon.stop()
+        self.quit()
 
     def init_ui(self):
         """A felhasználói felület inicializálása (menu bar, ikonok, gombok, container, elrendezések)."""
@@ -126,7 +149,8 @@ class MainApplication(tk.Tk):
 
     def show_list_creator(self):
         """A ListCreatorPage mutatása (második ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-        ListCreatorPage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+        ListCreatorPage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén
+        visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -146,7 +170,8 @@ class MainApplication(tk.Tk):
 
     def search_database(self):
         """A SearchDatabassePage mutatása (negyedik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         SearchDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+        SearchDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén
+        visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -156,7 +181,8 @@ class MainApplication(tk.Tk):
 
     def add_database(self):
         """Az AddDatabasePage mutatása (ötödik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         AddDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+        AddDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén
+        visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -166,7 +192,8 @@ class MainApplication(tk.Tk):
 
     def edit_database(self):
         """Az EditDatabasePage mutatása (hatodik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         EditDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+        EditDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén
+        visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -176,7 +203,8 @@ class MainApplication(tk.Tk):
 
     def delete_database(self):
         """A DeleteDatabasePage mutatása (hetedik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         DeleteDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+        DeleteDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén
+        visszatérés."""
         if not self.logged_in:
             return
         if self.current_page:
