@@ -43,7 +43,7 @@ class LoginPage(tk.Frame):
         cursor.execute("SELECT * FROM admin WHERE username=? AND password=?", (username, password))
         user = cursor.fetchone()
 
-        if username == "cliptimizer_admin" and password == "cliptimizer":
+        if username == "cliptimizer_admin" and password == "Cliptimizer123!":
             self.app.on_login_success()
         else:
             messagebox.showerror("Error", "Hibás felhasználónév, vagy jelszó!")
