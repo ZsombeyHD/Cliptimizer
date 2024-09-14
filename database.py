@@ -39,7 +39,7 @@ class DatabasePage(tk.Frame):
             widget.destroy()
 
         cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM contacts")
+        cursor.execute("SELECT * FROM products")
         rows = cursor.fetchall()
 
         for row in rows:
@@ -49,11 +49,21 @@ class DatabasePage(tk.Frame):
             id_label = tk.Label(frame, text=f"ID: {row[0]}", bg='white', font=('Helvetica', 12))
             id_label.pack(side=tk.LEFT, padx=5, pady=5)
 
-            name_label = tk.Label(frame, text=f"Name: {row[1]}", bg='white', font=('Helvetica', 12))
+            name_label = tk.Label(frame, text=f"Név: {row[1]}", bg='white', font=('Helvetica', 12))
             name_label.pack(side=tk.LEFT, padx=5, pady=5)
 
-            email_label = tk.Label(frame, text=f"Email: {row[2]}", bg='white', font=('Helvetica', 12))
-            email_label.pack(side=tk.LEFT, padx=5, pady=5)
+            color_label = tk.Label(frame, text=f"Szín: {row[2]}", bg='white', font=('Helvetica', 12))
+            color_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+            clip_type_label = tk.Label(frame, text=f"Klipsz típusa: {row[3]}", bg='white', font=('Helvetica', 12))
+            clip_type_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+            items_per_hanger_label = tk.Label(frame, text=f"Függesztékre felrakható alkatrészek száma: {row[4]}", bg='white', font=('Helvetica', 12))
+            items_per_hanger_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+            cycle_time_label = tk.Label(frame, text=f"Teljes ciklus ideje (sec): {row[5]}", bg='white',
+                                        font=('Helvetica', 12))
+            cycle_time_label.pack(side=tk.LEFT, padx=5, pady=5)
 
     def __del__(self):
         """Destruktor, ha van nyitott kapcsolat."""
