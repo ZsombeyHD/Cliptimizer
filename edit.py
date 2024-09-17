@@ -59,7 +59,7 @@ class EditDatabasePage(tk.Frame):
         new_color = self.color_entry.get()
         new_items = self.items_entry.get()
         new_clip_type = self.clip_type_entry.get()
-        new_cycle_time = self.cycle_time_entry.get()
+        new_total_cycle_time = self.cycle_time_entry.get()
 
         cursor = self.conn.cursor()
 
@@ -72,8 +72,8 @@ class EditDatabasePage(tk.Frame):
             cursor.execute("UPDATE products SET items_per_hanger=? WHERE id=?", (new_items, id_value))
         if new_clip_type:
             cursor.execute("UPDATE products SET clip_type=? WHERE id=?", (new_clip_type, id_value))
-        if new_cycle_time:
-            cursor.execute("UPDATE products SET cycle_time=? WHERE id=?", (new_cycle_time, id_value))
+        if new_total_cycle_time:
+            cursor.execute("UPDATE products SET total_cycle_time=? WHERE id=?", (new_total_cycle_time, id_value))
 
         self.conn.commit()
 
