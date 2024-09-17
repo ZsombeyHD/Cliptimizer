@@ -70,7 +70,8 @@ class SearchDatabasePage(tk.Frame):
                                               bg='white', font=('Helvetica', 12))
             items_per_hanger_label.pack(side=tk.LEFT, padx=5, pady=5)
 
-            cycle_time_label = tk.Label(frame, text=f"Teljes ciklus ideje (sec): {row[5]}", bg='white', font=('Helvetica', 12))
+            cycle_time_label = tk.Label(frame, text=f"Teljes ciklus ideje (sec): {row[5]}", bg='white',
+                                        font=('Helvetica', 12))
             cycle_time_label.pack(side=tk.LEFT, padx=5, pady=5)
 
     def __del__(self):

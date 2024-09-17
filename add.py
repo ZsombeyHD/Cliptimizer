@@ -24,8 +24,8 @@ class AddDatabasePage(tk.Frame):
         color_label.pack(pady=5)
         self.color_var = StringVar(self)
         self.color_var.set("DIS576")  # Alapértelmezett szín
-        color_menu = OptionMenu(self, self.color_var, "DIS576", "DIS519", "DIS377", "DIS520", "DIS376", "DIS522",
-                                "DIS1198")
+        color_menu = OptionMenu(self, self.color_var, "DIS576", "DIS519", "DIS377", "DIS520", "DIS376",
+                                "DIS522", "DIS1198")
         color_menu.pack(pady=5)
 
         clip_type_label = tk.Label(self, text="Klipsz típusa:", bg='white', font=('Helvetica', 14))

@@ -5,6 +5,7 @@ import sqlite3
 
 class ListCreatorPage(tk.Frame):
     """A gyártási terv(ek) létrehozására szolgáló oldal."""
+
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
@@ -109,7 +110,8 @@ class ListCreatorPage(tk.Frame):
 
     def confirm_delete(self, plan_name):
         """Terv törlésének megerősítése és törlése."""
-        if messagebox.askyesno("Törlés megerősítése", f"Biztos törölni szeretné ezt a tervet : '{plan_name}'?"):
+        if messagebox.askyesno("Törlés megerősítése", f"Biztos törölni szeretné ezt a tervet : "
+                                                      f"'{plan_name}'?"):
             self.delete_plan(plan_name)
 
     def delete_plan(self, plan_name):
