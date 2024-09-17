@@ -11,8 +11,8 @@ class EditDatabasePage(tk.Frame):
         label = tk.Label(self, text="ADAT MÓDOSÍTÁSA", bg='white', font=('Helvetica', 20, 'bold'), padx=20, pady=20)
         label.pack(anchor=tk.N)
 
-        info_label = tk.Label(self, text="MINDEN ADAT VÁLTOZTATÁSA OPCIONÁLIS! Csak a módosítani kívánt mezőket "
-                                         "töltse ki!",
+        info_label = tk.Label(self, text="ID MEGADÁSA KÖTELEZŐ! Minden adat változtatása OPCIONÁLIS! Csak a "
+                                         "módosítani kívánt mezőket töltse ki!",
                               bg='white', font=('Helvetica', 12), fg='gray')
         info_label.pack(pady=5)
 
