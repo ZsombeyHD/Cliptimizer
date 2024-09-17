@@ -4,6 +4,7 @@ import sqlite3
 
 
 class ListCreatorPage(tk.Frame):
+    """A gyártási terv(ek) létrehozására szolgáló oldal."""
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
@@ -20,7 +21,7 @@ class ListCreatorPage(tk.Frame):
         label = tk.Label(self, text="TERVEK LÉTREHOZÁSA", bg='white', font=('Helvetica', 20, 'bold'), padx=20, pady=20)
         label.pack(anchor=tk.N)
 
-        # Képek betöltése
+        # Terv panelén található képek betöltése
         self.add_icon = PhotoImage(file='images/add_plan_resized.png')
         self.eye_icon = PhotoImage(file='images/eye_resized.png')
         self.trash_icon = PhotoImage(file='images/trash_resized.png')
@@ -84,12 +85,12 @@ class ListCreatorPage(tk.Frame):
         plan_label = tk.Label(panel, text=f"{plan_name}", bg='lightgrey', font=('Helvetica', 12))
         plan_label.pack(side=tk.LEFT, padx=10, pady=5)
 
-        # Terv megnézése ikon
+        # Terv megnézése
         view_button = tk.Button(panel, image=self.eye_icon, bg='lightgrey', bd=0,
                                 command=lambda: self.view_plan(plan_name, contact_name))
         view_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
-        # Terv törlése ikon
+        # Terv törlése
         delete_button = tk.Button(panel, image=self.trash_icon, bg='lightgrey', bd=0,
                                   command=lambda: self.confirm_delete(plan_name))
         delete_button.pack(side=tk.RIGHT, padx=10, pady=5)
@@ -113,11 +114,9 @@ class ListCreatorPage(tk.Frame):
 
     def delete_plan(self, plan_name):
         """Terv törlése az adatbázisból és a panelből."""
-        # Terv törlése az adatbázisból
         self.cursor.execute("DELETE FROM plans WHERE plan_name = ?", (plan_name,))
         self.conn.commit()
 
-        # Terv törlése a panelből
         for widget in self.plan_container.winfo_children():
             if isinstance(widget, tk.Frame) and widget.winfo_children()[0].cget("text") == plan_name:
                 widget.destroy()

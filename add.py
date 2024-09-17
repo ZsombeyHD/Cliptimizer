@@ -4,6 +4,8 @@ from tkinter import filedialog, StringVar, OptionMenu
 
 
 class AddDatabasePage(tk.Frame):
+    """A termékek hozzáadására szolgáló oldal."""
+
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
@@ -13,13 +15,11 @@ class AddDatabasePage(tk.Frame):
                          pady=20)
         label.pack(anchor=tk.N)
 
-        # Termék neve
         name_label = tk.Label(self, text="Termék neve:", bg='white', font=('Helvetica', 14))
         name_label.pack(pady=5)
         self.name_entry = tk.Entry(self, font=('Helvetica', 14))
         self.name_entry.pack(pady=5)
 
-        # Termék színe
         color_label = tk.Label(self, text="Termék színe:", bg='white', font=('Helvetica', 14))
         color_label.pack(pady=5)
         self.color_var = StringVar(self)
@@ -28,33 +28,28 @@ class AddDatabasePage(tk.Frame):
                                 "DIS1198")
         color_menu.pack(pady=5)
 
-        # Klipsz típusa
         clip_type_label = tk.Label(self, text="Klipsz típusa:", bg='white', font=('Helvetica', 14))
         clip_type_label.pack(pady=5)
         self.clip_type_entry = tk.Entry(self, font=('Helvetica', 14))
         self.clip_type_entry.pack(pady=5)
 
-        # Függesztékre felrakható mennyiség
-        items_per_hanger_label = tk.Label(self, text="Függesztékre felrakható mennyiség:", bg='white',
+        items_per_hanger_label = tk.Label(self, text="Függesztékre felrakható alkatrészek száma:", bg='white',
                                           font=('Helvetica', 14))
         items_per_hanger_label.pack(pady=5)
         self.items_per_hanger_entry = tk.Entry(self, font=('Helvetica', 14))
         self.items_per_hanger_entry.pack(pady=5)
 
-        # Teljes ciklusidő
         cycle_time_label = tk.Label(self, text="Teljes ciklusidő (másodperc):", bg='white', font=('Helvetica', 14))
         cycle_time_label.pack(pady=5)
         self.cycle_time_entry = tk.Entry(self, font=('Helvetica', 14))
         self.cycle_time_entry.pack(pady=5)
 
-        # Fotó hozzáadása
         photo_label = tk.Label(self, text="Fotó hozzáadása:", bg='white', font=('Helvetica', 14))
         photo_label.pack(pady=5)
         self.photo_path = ""
         add_photo_button = tk.Button(self, text="Fotó kiválasztása", font=('Helvetica', 14), command=self.add_photo)
         add_photo_button.pack(pady=5)
 
-        # Hozzáadás gomb
         add_button = tk.Button(self, text="Hozzáadás", font=('Helvetica', 14), command=self.add_data)
         add_button.pack(pady=20)
 
@@ -73,7 +68,7 @@ class AddDatabasePage(tk.Frame):
         items_per_hanger = self.items_per_hanger_entry.get()
         cycle_time = self.cycle_time_entry.get()
 
-        # A kiválasztott fotó bináris adatként való kezelése
+        # Fotó bináris adatként való kezelése
         photo_data = None
         if self.photo_path:
             with open(self.photo_path, 'rb') as file:

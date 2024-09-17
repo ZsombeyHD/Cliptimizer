@@ -11,10 +11,10 @@ class DeleteDatabasePage(tk.Frame):
         label = tk.Label(self, text="ADAT TÖRLÉSE", bg='white', font=('Helvetica', 20, 'bold'), padx=20, pady=20)
         label.pack(anchor=tk.N)
 
-        name_label = tk.Label(self, text="Név:", bg='white', font=('Helvetica', 14))
-        name_label.pack(pady=5)
-        self.name_entry = tk.Entry(self, font=('Helvetica', 14))
-        self.name_entry.pack(pady=5)
+        id_label = tk.Label(self, text="ID:", bg='white', font=('Helvetica', 14))
+        id_label.pack(pady=5)
+        self.id_entry = tk.Entry(self, font=('Helvetica', 14))
+        self.id_entry.pack(pady=5)
 
         delete_button = tk.Button(self, text="Törlés", font=('Helvetica', 14), command=self.delete_data)
         delete_button.pack(pady=20)
@@ -23,14 +23,14 @@ class DeleteDatabasePage(tk.Frame):
         self.conn = sqlite3.connect('cliptimizer.db')
 
     def delete_data(self):
-        """Az adatok begyűjtése, törlése név alapján, beviteli mezők ürítése, frissítése a többi ablakban is."""
-        name = self.name_entry.get()
+        """Az adatok begyűjtése, törlése ID alapján, beviteli mezők ürítése, frissítése a többi ablakban is."""
+        product_id = self.id_entry.get()
 
         cursor = self.conn.cursor()
-        cursor.execute("DELETE FROM contacts WHERE name=?", (name,))
+        cursor.execute("DELETE FROM products WHERE id=?", (product_id,))
         self.conn.commit()
 
-        self.name_entry.delete(0, tk.END)
+        self.id_entry.delete(0, tk.END)
 
         self.update_pages()
 

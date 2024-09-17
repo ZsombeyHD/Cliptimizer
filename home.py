@@ -2,6 +2,7 @@ import tkinter as tk
 
 
 class HomePage(tk.Frame):
+    """Ez az alapértelmezett úgymond főoldal bejelentkezés után."""
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')

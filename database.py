@@ -3,6 +3,7 @@ import sqlite3
 
 
 class DatabasePage(tk.Frame):
+    """A jelenlegi adatok mutatására szolgáló oldal. Bármilyen hozzáadás, módosítás, törlés esetén frissítődik."""
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
@@ -58,7 +59,8 @@ class DatabasePage(tk.Frame):
             clip_type_label = tk.Label(frame, text=f"Klipsz típusa: {row[3]}", bg='white', font=('Helvetica', 12))
             clip_type_label.pack(side=tk.LEFT, padx=5, pady=5)
 
-            items_per_hanger_label = tk.Label(frame, text=f"Függesztékre felrakható alkatrészek száma: {row[4]}", bg='white', font=('Helvetica', 12))
+            items_per_hanger_label = tk.Label(frame, text=f"Függesztékre felrakható alkatrészek száma: {row[4]}",
+                                              bg='white', font=('Helvetica', 12))
             items_per_hanger_label.pack(side=tk.LEFT, padx=5, pady=5)
 
             cycle_time_label = tk.Label(frame, text=f"Teljes ciklus ideje (sec): {row[5]}", bg='white',

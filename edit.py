@@ -11,6 +11,11 @@ class EditDatabasePage(tk.Frame):
         label = tk.Label(self, text="ADAT MÓDOSÍTÁSA", bg='white', font=('Helvetica', 20, 'bold'), padx=20, pady=20)
         label.pack(anchor=tk.N)
 
+        info_label = tk.Label(self, text="MINDEN ADAT VÁLTOZTATÁSA OPCIONÁLIS! Csak a módosítani kívánt mezőket "
+                                         "töltse ki!",
+                              bg='white', font=('Helvetica', 12), fg='gray')
+        info_label.pack(pady=5)
+
         id_label = tk.Label(self, text="ID:", bg='white', font=('Helvetica', 14))
         id_label.pack(pady=5)
         self.id_entry = tk.Entry(self, font=('Helvetica', 14))
@@ -21,10 +26,25 @@ class EditDatabasePage(tk.Frame):
         self.name_entry = tk.Entry(self, font=('Helvetica', 14))
         self.name_entry.pack(pady=5)
 
-        email_label = tk.Label(self, text="Új email:", bg='white', font=('Helvetica', 14))
-        email_label.pack(pady=5)
-        self.email_entry = tk.Entry(self, font=('Helvetica', 14))
-        self.email_entry.pack(pady=5)
+        color_label = tk.Label(self, text="Új szín (DIS-kód):", bg='white', font=('Helvetica', 14))
+        color_label.pack(pady=5)
+        self.color_entry = tk.Entry(self, font=('Helvetica', 14))
+        self.color_entry.pack(pady=5)
+
+        items_label = tk.Label(self, text="Új alkatrészek száma függesztékenként:", bg='white', font=('Helvetica', 14))
+        items_label.pack(pady=5)
+        self.items_entry = tk.Entry(self, font=('Helvetica', 14))
+        self.items_entry.pack(pady=5)
+
+        clip_type_label = tk.Label(self, text="Új klipsz típus:", bg='white', font=('Helvetica', 14))
+        clip_type_label.pack(pady=5)
+        self.clip_type_entry = tk.Entry(self, font=('Helvetica', 14))
+        self.clip_type_entry.pack(pady=5)
+
+        cycle_time_label = tk.Label(self, text="Új ciklusidő (másodperc):", bg='white', font=('Helvetica', 14))
+        cycle_time_label.pack(pady=5)
+        self.cycle_time_entry = tk.Entry(self, font=('Helvetica', 14))
+        self.cycle_time_entry.pack(pady=5)
 
         edit_button = tk.Button(self, text="Módosítás", font=('Helvetica', 14), command=self.edit_data)
         edit_button.pack(pady=20)
@@ -36,15 +56,34 @@ class EditDatabasePage(tk.Frame):
         """Adatok begyűjtése, módosítása ID alapján, beviteli mezők ürítése, frissítése a többi ablakban is."""
         id_value = self.id_entry.get()
         new_name = self.name_entry.get()
-        new_email = self.email_entry.get()
+        new_color = self.color_entry.get()
+        new_items = self.items_entry.get()
+        new_clip_type = self.clip_type_entry.get()
+        new_cycle_time = self.cycle_time_entry.get()
 
         cursor = self.conn.cursor()
-        cursor.execute("UPDATE contacts SET name=?, email=? WHERE id=?", (new_name, new_email, id_value))
+
+        # Mivel opcionális minden adat változtatása, ellenőrizzük, hogy mi változott
+        if new_name:
+            cursor.execute("UPDATE products SET name=? WHERE id=?", (new_name, id_value))
+        if new_color:
+            cursor.execute("UPDATE products SET color=? WHERE id=?", (new_color, id_value))
+        if new_items:
+            cursor.execute("UPDATE products SET items_per_hanger=? WHERE id=?", (new_items, id_value))
+        if new_clip_type:
+            cursor.execute("UPDATE products SET clip_type=? WHERE id=?", (new_clip_type, id_value))
+        if new_cycle_time:
+            cursor.execute("UPDATE products SET cycle_time=? WHERE id=?", (new_cycle_time, id_value))
+
         self.conn.commit()
 
+        # Bevitt adatok ürítése
         self.id_entry.delete(0, tk.END)
         self.name_entry.delete(0, tk.END)
-        self.email_entry.delete(0, tk.END)
+        self.color_entry.delete(0, tk.END)
+        self.items_entry.delete(0, tk.END)
+        self.clip_type_entry.delete(0, tk.END)
+        self.cycle_time_entry.delete(0, tk.END)
 
         self.update_pages()
 
