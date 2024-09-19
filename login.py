@@ -31,6 +31,10 @@ class LoginPage(tk.Frame):
                                            command=self.open_change_password_window)
         change_password_button.pack(pady=10)
 
+        # Kilépés gomb
+        exit_button = tk.Button(self, text="Kilépés", font=('Helvetica', 14), command=self.exit_application)
+        exit_button.pack(pady=10)
+
         # A kép
         self.clip_image = tk.PhotoImage(file='images/cliptimizer.png')
         clip_label = tk.Label(self, image=self.clip_image, bg='white')
@@ -112,6 +116,12 @@ class LoginPage(tk.Frame):
 
         messagebox.showinfo("Siker", "Jelszó sikeresen megváltoztatva!")
         window.destroy()
+
+    def exit_application(self):
+        """Az alkalmazás bezárása."""
+        self.app.withdraw()
+        self.app.quit()
+        self.app.destroy()
 
     def __del__(self):
         """Destruktor, ha van nyitott kapcsolat."""

@@ -42,6 +42,7 @@ class MainApplication(tk.Tk):
         self.edit_image = None
         self.list_creator_image = None
         self.sign_out_image = None
+        self.quit_image = None
         self.home_button = None
         self.contact_button = None
         self.database_button = None
@@ -52,6 +53,7 @@ class MainApplication(tk.Tk):
         self.robot_button = None
         self.list_creator_button = None
         self.sign_out_button = None
+        self.quit_button = None
         self.menu_bar_panel = None
         self.pages_container = None
         self.current_page = None
@@ -93,6 +95,7 @@ class MainApplication(tk.Tk):
         self.edit_image = PhotoImage(file='images/edit_resized.png')
         self.list_creator_image = PhotoImage(file='images/list_resized.png')
         self.sign_out_image = PhotoImage(file='images/sign-out-alt_resized.png')
+        self.quit_image = PhotoImage(file='images/power_resized.png')
 
         # Az ikonok, amik lényegében gombok is
         self.home_button = tk.Button(self.menu_bar_panel, image=self.home_image, bg='white', bd=0,
@@ -132,8 +135,12 @@ class MainApplication(tk.Tk):
         self.contact_button.pack(pady=(10, 10))
 
         self.sign_out_button = tk.Button(self.menu_bar_panel, image=self.sign_out_image, bg='white', bd=0,
-                                         command=self.logout)
+                                         command=self.logout_application)
         self.sign_out_button.pack(pady=(10, 10))
+
+        self.quit_button = tk.Button(self.menu_bar_panel, image=self.quit_image, bg='white', bd=0,
+                                     command=self.quit_application)
+        self.quit_button.pack(pady=(10, 10))
 
         # A container létrehozása más tartalmak megjelenítésére
         self.pages_container = tk.Frame(self, bg='white')
@@ -224,7 +231,7 @@ class MainApplication(tk.Tk):
         self.current_page = contact.ContactPage(self.pages_container)
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
-    def logout(self):
+    def logout_application(self):
         """Felhasználó kijelentkezése."""
         confirm = messagebox.askyesno("Kijelentkezés", "Biztos kijelentkezel?")
         if confirm:
@@ -246,6 +253,14 @@ class MainApplication(tk.Tk):
         self.login_page.pack_forget()
         self.init_ui()
         self.show_home()
+
+    def quit_application(self):
+        """Kilépés előtti megerősítés és a program biztonságos leállítása."""
+        if messagebox.askyesno("Kilépés", "Biztosan ki akarsz lépni?"):
+            if hasattr(self, 'tray_icon'):
+                self.tray_icon.stop()
+            self.quit()
+            self.destroy()
 
 
 if __name__ == "__main__":
