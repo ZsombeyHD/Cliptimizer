@@ -1,9 +1,7 @@
 import tkinter as tk
-from tkinter import PhotoImage
-
+from tkinter import PhotoImage, messagebox
 import pystray
 from PIL import Image
-
 import add
 import contact
 import database
@@ -43,6 +41,7 @@ class MainApplication(tk.Tk):
         self.delete_image = None
         self.edit_image = None
         self.list_creator_image = None
+        self.sign_out_image = None
         self.home_button = None
         self.contact_button = None
         self.database_button = None
@@ -52,6 +51,8 @@ class MainApplication(tk.Tk):
         self.delete_button = None
         self.robot_button = None
         self.list_creator_button = None
+        self.sign_out_button = None
+        self.menu_bar_panel = None
         self.pages_container = None
         self.current_page = None
 
@@ -78,8 +79,8 @@ class MainApplication(tk.Tk):
     def init_ui(self):
         """A felhasználói felület inicializálása (menu bar, ikonok, gombok, container, elrendezések)."""
         # A menu bar
-        menu_bar_panel = tk.Frame(self, bg='white', width=80)
-        menu_bar_panel.pack(side=tk.LEFT, fill=tk.Y, pady=4, padx=5)
+        self.menu_bar_panel = tk.Frame(self, bg='white', width=80)
+        self.menu_bar_panel.pack(side=tk.LEFT, fill=tk.Y, pady=4, padx=5)
 
         # A bal oldalt található ikonok
         self.home_image = PhotoImage(file='images/home_resized.png')
@@ -91,43 +92,48 @@ class MainApplication(tk.Tk):
         self.delete_image = PhotoImage(file='images/delete_resized.png')
         self.edit_image = PhotoImage(file='images/edit_resized.png')
         self.list_creator_image = PhotoImage(file='images/list_resized.png')
+        self.sign_out_image = PhotoImage(file='images/sign-out-alt_resized.png')
 
         # Az ikonok, amik lényegében gombok is
-        self.home_button = tk.Button(menu_bar_panel, image=self.home_image, bg='white', bd=0,
+        self.home_button = tk.Button(self.menu_bar_panel, image=self.home_image, bg='white', bd=0,
                                      command=self.show_home)
         self.home_button.pack(pady=(10, 10))
 
-        self.list_creator_button = tk.Button(menu_bar_panel, image=self.list_creator_image, bg='white', bd=0,
+        self.list_creator_button = tk.Button(self.menu_bar_panel, image=self.list_creator_image, bg='white', bd=0,
                                              command=self.show_list_creator)
         self.list_creator_button.pack(pady=(10, 10))
 
-        self.database_button = tk.Button(menu_bar_panel, image=self.database_image, bg='white', bd=0,
+        self.database_button = tk.Button(self.menu_bar_panel, image=self.database_image, bg='white', bd=0,
                                          command=self.show_database)
         self.database_button.pack(pady=(10, 10))
 
-        self.search_button = tk.Button(menu_bar_panel, image=self.search_image, bg='white', bd=0,
+        self.search_button = tk.Button(self.menu_bar_panel, image=self.search_image, bg='white', bd=0,
                                        command=self.search_database)
         self.search_button.pack(pady=(10, 10))
 
-        self.add_button = tk.Button(menu_bar_panel, image=self.add_image, bg='white', bd=0,
+        self.add_button = tk.Button(self.menu_bar_panel, image=self.add_image, bg='white', bd=0,
                                     command=self.add_database)
         self.add_button.pack(pady=(10, 10))
 
-        self.edit_button = tk.Button(menu_bar_panel, image=self.edit_image, bg='white', bd=0,
+        self.edit_button = tk.Button(self.menu_bar_panel, image=self.edit_image, bg='white', bd=0,
                                      command=self.edit_database)
         self.edit_button.pack(pady=(10, 10))
 
-        self.delete_button = tk.Button(menu_bar_panel, image=self.delete_image, bg='white', bd=0,
+        self.delete_button = tk.Button(self.menu_bar_panel, image=self.delete_image, bg='white', bd=0,
                                        command=self.delete_database)
         self.delete_button.pack(pady=(10, 10))
 
-        self.robot_button = tk.Button(menu_bar_panel, image=self.robot_image, bg='white', bd=0,
+        self.robot_button = tk.Button(self.menu_bar_panel, image=self.robot_image, bg='white', bd=0,
                                       command=self.show_robot)
         self.robot_button.pack(pady=(10, 10))
 
-        self.contact_button = tk.Button(menu_bar_panel, image=self.contact_image, bg='white', bd=0,
+        self.contact_button = tk.Button(self.menu_bar_panel, image=self.contact_image, bg='white', bd=0,
                                         command=self.show_contact)
         self.contact_button.pack(pady=(10, 10))
+
+        self.sign_out_button = tk.Button(self.menu_bar_panel, image=self.sign_out_image, bg='white', bd=0,
+                                         command=self.logout)
+        self.sign_out_button.pack(pady=(10, 10))
 
         # A container létrehozása más tartalmak megjelenítésére
         self.pages_container = tk.Frame(self, bg='white')
@@ -138,8 +144,7 @@ class MainApplication(tk.Tk):
         self.show_home()
 
     def show_home(self):
-        """A HomePage mutatása (első ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-        HomePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+        """A HomePage mutatása (első ablak)."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -148,9 +153,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_list_creator(self):
-        """A ListCreatorPage mutatása (második ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-        ListCreatorPage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén
-        visszatérés."""
+        """A ListCreatorPage mutatása (második ablak)."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -159,8 +162,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_database(self):
-        """A DatabasePage mutatása (harmadik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         DatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+        """A DatabasePage mutatása (harmadik ablak)."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -169,9 +171,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def search_database(self):
-        """A SearchDatabassePage mutatása (negyedik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-        SearchDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén
-        visszatérés."""
+        """A SearchDatabasePage mutatása (negyedik ablak)."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -180,9 +180,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def add_database(self):
-        """Az AddDatabasePage mutatása (ötödik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-        AddDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén
-        visszatérés."""
+        """Az AddDatabasePage mutatása (ötödik ablak)."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -191,9 +189,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def edit_database(self):
-        """Az EditDatabasePage mutatása (hatodik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-        EditDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén
-        visszatérés."""
+        """Az EditDatabasePage mutatása (hatodik ablak)."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -202,9 +198,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def delete_database(self):
-        """A DeleteDatabasePage mutatása (hetedik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-        DeleteDatabasePage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén
-        visszatérés."""
+        """A DeleteDatabasePage mutatása (hetedik ablak)."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -213,8 +207,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_robot(self):
-        """A RobotPage mutatása (nyolcadik ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         RobotPage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+        """A RobotPage mutatása (nyolcadik ablak)."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -223,8 +216,7 @@ class MainApplication(tk.Tk):
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_contact(self):
-        """A ContactPage mutatása (utolsó ablak). Oldal megjelenítése, esetleges jelenlegi oldal elrejtése,
-         ContactPage objektum létrehozás és containerben megjelenítés. Sikertelen bejelentkezés esetén visszatérés."""
+        """A ContactPage mutatása (utolsó ablak)."""
         if not self.logged_in:
             return
         if self.current_page:
@@ -232,9 +224,19 @@ class MainApplication(tk.Tk):
         self.current_page = contact.ContactPage(self.pages_container)
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
+    def logout(self):
+        """Felhasználó kijelentkezése."""
+        confirm = messagebox.askyesno("Kijelentkezés", "Biztos kijelentkezel?")
+        if confirm:
+            self.logged_in = False
+            if self.menu_bar_panel:
+                self.menu_bar_panel.pack_forget()
+            if self.pages_container:
+                self.pages_container.pack_forget()
+            self.show_login()
+
     def show_login(self):
-        """A LoginPage mutatása (program előtti bejelentkezésre szolgáló ablak). Itt nincs container,
-        hiszen a LoginPage nem függ tőle."""
+        """A LoginPage mutatása (program előtti bejelentkezésre szolgáló ablak)."""
         self.login_page = login.LoginPage(self, self)
         self.login_page.pack(fill=tk.BOTH, expand=True)
 
@@ -246,7 +248,6 @@ class MainApplication(tk.Tk):
         self.show_home()
 
 
-# A main.py fájl közvetlen elindítása
 if __name__ == "__main__":
     app = MainApplication()
     app.mainloop()
