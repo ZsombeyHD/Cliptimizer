@@ -17,13 +17,43 @@ class ListCreatorPage(tk.Frame):
         self.conn = sqlite3.connect('cliptimizer.db')
         self.cursor = self.conn.cursor()
 
-        # Adat lekérése a products táblából
+        # A függesztékek számainak lekérése
+        self.update_hanger_status()
+
+        # Products táblából adat lekérése
         self.cursor.execute("SELECT name FROM products")
         self.product_names = [row[0] for row in self.cursor.fetchall()]
 
+        # Fő konténer a terv létrehozása és paneleknek és függesztékek számának
+        main_container = tk.Frame(self, bg='white')
+        main_container.pack(fill=tk.BOTH, expand=True)
+
+        # Bal oldali konténer a terv paneleknek
+        left_container = tk.Frame(main_container, bg='white')
+        left_container.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Jobb oldali konténer a függeszték adatoknak
+        right_container = tk.Frame(main_container, bg='white')
+        right_container.pack(side=tk.RIGHT, padx=20, pady=20, anchor=tk.N)
+
         # A cím
-        label = tk.Label(self, text="TERVEK LÉTREHOZÁSA", bg='white', font=('Helvetica', 20, 'bold'), padx=20, pady=20)
+        label = tk.Label(left_container, text="TERVEK LÉTREHOZÁSA", bg='white', font=('Helvetica', 20, 'bold'), padx=20,
+                         pady=20)
         label.pack(anchor=tk.N)
+
+        # Frame a függeszték adatoknak (jobb oldal)
+        hanger_frame = tk.Frame(right_container, bg='white')
+        hanger_frame.pack(anchor=tk.N)
+
+        # Elérhető függesztékek
+        self.available_label = tk.Label(hanger_frame, text=f"Elérhető függesztékek: {self.available_hangers}",
+                                        bg='white', font=('Helvetica', 14))
+        self.available_label.pack(anchor=tk.W, pady=10)
+
+        # Elfoglalt függesztékek
+        self.occupied_label = tk.Label(hanger_frame, text=f"Elfoglalt függesztékek: {self.occupied_hangers}",
+                                       bg='white', font=('Helvetica', 14))
+        self.occupied_label.pack(anchor=tk.W, pady=10)
 
         # Ezen az oldalon található képek
         self.add_icon = PhotoImage(file='images/add_plan_resized.png')
@@ -31,18 +61,35 @@ class ListCreatorPage(tk.Frame):
         self.trash_icon = PhotoImage(file='images/trash_resized.png')
 
         # Terv létrehozása gomb
-        add_button = tk.Button(self, image=self.add_icon, bg='white', bd=0, command=self.create_new_plan)
+        add_button = tk.Button(left_container, image=self.add_icon, bg='white', bd=0, command=self.create_new_plan)
         add_button.pack(anchor=tk.N, pady=20)
 
-        # Panelek konténere (ahol a terveket megjelenítjük)
-        self.plan_container = tk.Frame(self, bg='white')
+        # Terv panelek konténere
+        self.plan_container = tk.Frame(left_container, bg='white')
         self.plan_container.pack(anchor=tk.N, pady=20)
 
         # Tervek betöltése
         self.load_plans()
 
+    def update_hanger_status(self):
+        """Lekérdezzük az elérhető és elfoglalt függesztékek számát."""
+        self.cursor.execute("SELECT available, occupied FROM hangers")
+        hanger_status = self.cursor.fetchone()
+
+        if hanger_status:
+            self.available_hangers, self.occupied_hangers = hanger_status
+        else:
+            # Ha nincs adat, alapértelmezett értékeket használunk
+            self.available_hangers, self.occupied_hangers = 70, 0
+
+    def refresh_hanger_display(self):
+        """Frissítjük a megjelenített függesztékek számát."""
+        self.update_hanger_status()
+        self.available_label.config(text=f"Elérhető függesztékek: {self.available_hangers}")
+        self.occupied_label.config(text=f"Elfoglalt függesztékek: {self.occupied_hangers}")
+
     def load_plans(self):
-        """Tervek betöltése az adatbázisból és panelek megjelenítése."""
+        """Tervek betöltése és panelek megjelenítése."""
         self.cursor.execute("SELECT DISTINCT plan_name FROM plans")
         plans = self.cursor.fetchall()
 
@@ -109,19 +156,8 @@ class ListCreatorPage(tk.Frame):
                 try:
                     product_name = selected_product.get()
 
-                    # Mennyiség mező létezik-e és érvényes-e?
-                    try:
-                        amount_str = amount_entry.get()
-                    except Exception as e:
-                        messagebox.showerror("Hiba", f"Nem sikerült elérni a mennyiség mezőt: {e}")
-                        return
-
-                    # Mennyiség mező nem üres-e és egy számot tartalmaz-e?
-                    if not amount_str.isdigit():
-                        messagebox.showerror("Hiba", "A mennyiség mezőbe számot kell írni.")
-                        return
-
-                    amount = int(amount_str)
+                    # Mennyiség mező
+                    amount = amount_entry.get()
 
                     # Product ID lekérése a név alapján
                     self.cursor.execute("SELECT id FROM products WHERE name = ?", (product_name,))
@@ -131,18 +167,21 @@ class ListCreatorPage(tk.Frame):
                     self.cursor.execute(
                         "INSERT INTO plans (plan_name, product_ID, amount, start_time, end_time, hangers_needed) "
                         "VALUES (?, ?, ?, ?, ?, ?)",
-                        (plan_name, product_id, amount, '', '', None))
+                        (plan_name, product_id, int(amount), '', '', None))
                     self.conn.commit()
 
                 except Exception as e:
                     messagebox.showerror("Hiba", f"Hiba történt a terv mentésekor: {e}")
                     return
 
-            # Zárjuk be az új terv ablakot csak akkor, ha sikeres volt a mentés
+            # Zárjuk be az új terv ablakot
             window.destroy()
 
             # Terv hozzáadása a listához
             self.add_plan_panel(plan_name)
+
+            # Frissítjük a függesztékeket
+            self.refresh_hanger_display()
 
     def add_plan_panel(self, plan_name):
         """Panel hozzáadása a tervhez."""
@@ -185,8 +224,7 @@ class ListCreatorPage(tk.Frame):
 
     def confirm_delete(self, plan_name):
         """Terv törlésének megerősítése és törlése."""
-        if messagebox.askyesno("Törlés megerősítése", f"Biztos törölni szeretné ezt a tervet : "
-                                                      f"'{plan_name}'?"):
+        if messagebox.askyesno("Törlés megerősítése", f"Biztos törölni szeretné ezt a tervet : '{plan_name}'?"):
             self.delete_plan(plan_name)
 
     def delete_plan(self, plan_name):
@@ -199,6 +237,9 @@ class ListCreatorPage(tk.Frame):
             if isinstance(widget, tk.Frame):
                 if widget.winfo_children()[0].cget("text") == plan_name:
                     widget.destroy()
+
+        # Frissítjük a függesztékek megjelenítését
+        self.refresh_hanger_display()
 
 
 if __name__ == "__main__":
