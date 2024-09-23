@@ -4,6 +4,7 @@ import sqlite3
 
 class DatabasePage(tk.Frame):
     """A jelenlegi adatok mutatására szolgáló oldal. Bármilyen hozzáadás, módosítás, törlés esetén frissítődik."""
+
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
@@ -66,6 +67,11 @@ class DatabasePage(tk.Frame):
             cycle_time_label = tk.Label(frame, text=f"Teljes ciklus ideje (sec): {row[5]}", bg='white',
                                         font=('Helvetica', 12))
             cycle_time_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+            material_per_part_label = tk.Label(frame, text=f"Vegyes anyagszükséglet / alkatrész (g): {row[7]}",
+                                               bg='white',
+                                               font=('Helvetica', 12))
+            material_per_part_label.pack(side=tk.LEFT, padx=5, pady=5)
 
     def __del__(self):
         """Destruktor, ha van nyitott kapcsolat."""

@@ -44,6 +44,12 @@ class AddDatabasePage(tk.Frame):
         self.cycle_time_entry = tk.Entry(self, font=('Helvetica', 14))
         self.cycle_time_entry.pack(pady=5)
 
+        material_per_part_label = tk.Label(self, text="Vegyes anyagszükséglet / alkatrész (g):", bg='white',
+                                           font=('Helvetica', 14))
+        material_per_part_label.pack(pady=5)
+        self.material_per_part_entry = tk.Entry(self, font=('Helvetica', 14))
+        self.material_per_part_entry.pack(pady=5)
+
         photo_label = tk.Label(self, text="Fotó hozzáadása:", bg='white', font=('Helvetica', 14))
         photo_label.pack(pady=5)
         self.photo_path = ""
@@ -67,6 +73,7 @@ class AddDatabasePage(tk.Frame):
         clip_type = self.clip_type_entry.get()
         items_per_hanger = self.items_per_hanger_entry.get()
         cycle_time = self.cycle_time_entry.get()
+        material_per_part = self.material_per_part_entry.get()
 
         # Fotó bináris adatként való kezelése
         photo_data = None
@@ -75,8 +82,9 @@ class AddDatabasePage(tk.Frame):
                 photo_data = file.read()
 
         cursor = self.conn.cursor()
-        cursor.execute("""INSERT INTO products (name, color, clip_type, items_per_hanger, total_cycle_time, photo) 
-        VALUES (?, ?, ?, ?, ?, ?)""", (name, color, clip_type, items_per_hanger, cycle_time, photo_data))
+        cursor.execute("""INSERT INTO products (name, color, clip_type, items_per_hanger, total_cycle_time, 
+        material_per_part, photo) VALUES (?, ?, ?, ?, ?, ?, ?)""", (name, color, clip_type, items_per_hanger,
+                                                                    cycle_time, material_per_part, photo_data))
         self.conn.commit()
 
         # Beviteli mezők ürítése
@@ -84,6 +92,7 @@ class AddDatabasePage(tk.Frame):
         self.clip_type_entry.delete(0, tk.END)
         self.items_per_hanger_entry.delete(0, tk.END)
         self.cycle_time_entry.delete(0, tk.END)
+        self.material_per_part_entry.delete(0, tk.END)
         self.photo_path = ""
 
         self.update_pages()

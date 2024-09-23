@@ -46,6 +46,12 @@ class EditDatabasePage(tk.Frame):
         self.cycle_time_entry = tk.Entry(self, font=('Helvetica', 14))
         self.cycle_time_entry.pack(pady=5)
 
+        material_per_part_label = tk.Label(self, text="Új vegyes anyagszükséglet / alkatrész (g):", bg='white',
+                                           font=('Helvetica', 14))
+        material_per_part_label.pack(pady=5)
+        self.material_per_part_entry = tk.Entry(self, font=('Helvetica', 14))
+        self.material_per_part_entry.pack(pady=5)
+
         edit_button = tk.Button(self, text="Módosítás", font=('Helvetica', 14), command=self.edit_data)
         edit_button.pack(pady=20)
 
@@ -60,6 +66,7 @@ class EditDatabasePage(tk.Frame):
         new_items = self.items_entry.get()
         new_clip_type = self.clip_type_entry.get()
         new_total_cycle_time = self.cycle_time_entry.get()
+        new_material_per_part = self.material_per_part_entry.get()
 
         cursor = self.conn.cursor()
 
@@ -74,6 +81,8 @@ class EditDatabasePage(tk.Frame):
             cursor.execute("UPDATE products SET clip_type=? WHERE id=?", (new_clip_type, id_value))
         if new_total_cycle_time:
             cursor.execute("UPDATE products SET total_cycle_time=? WHERE id=?", (new_total_cycle_time, id_value))
+        if new_material_per_part:
+            cursor.execute("UPDATE products SET material_per_part=? WHERE id=?", (new_material_per_part, id_value))
 
         self.conn.commit()
 
@@ -84,6 +93,7 @@ class EditDatabasePage(tk.Frame):
         self.items_entry.delete(0, tk.END)
         self.clip_type_entry.delete(0, tk.END)
         self.cycle_time_entry.delete(0, tk.END)
+        self.material_per_part_entry.delete(0, tk.END)
 
         self.update_pages()
 
