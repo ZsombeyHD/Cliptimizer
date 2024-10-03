@@ -41,7 +41,7 @@ class ListCreatorPage(tk.Frame):
                          pady=20)
         label.pack(anchor=tk.N)
 
-        # Frame a függeszték adatoknak (jobb oldal)
+        # Frame a függeszték adatoknak
         hanger_frame = tk.Frame(right_container, bg='white')
         hanger_frame.pack(anchor=tk.N)
 
@@ -127,9 +127,10 @@ class ListCreatorPage(tk.Frame):
         button_frame = tk.Frame(new_window)
         button_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
 
-        # Mentés gomb
-        tk.Button(button_frame, text="Mentés", command=lambda: self.save_plan(new_window, plan_name_entry.get())).pack(
-            pady=10)
+        # Mentés gomb hozzáadása
+        save_button = tk.Button(button_frame, text="Mentés", font=('Helvetica', 14),
+                                command=lambda: self.save_plan(new_window, plan_name_entry.get()))
+        save_button.pack(pady=10)
 
     def add_product_field(self, window):
         """Új termék és mennyiség mezők hozzáadása."""
@@ -146,29 +147,70 @@ class ListCreatorPage(tk.Frame):
         amount_entry = Spinbox(product_frame, from_=1, to=1000, width=5)
         amount_entry.pack(side=tk.LEFT, padx=10)
 
-        # Hozzáadjuk a termék menü és mennyiség mezőt a listához
-        self.product_entries.append((selected_product, amount_entry))
+        # Checkbox a manuális függesztékszám megadásához
+        manual_hanger_var = tk.BooleanVar()
+        manual_hanger_check = tk.Checkbutton(product_frame, text="Manuális függesztékszám",
+                                             variable=manual_hanger_var, font=('Helvetica', 12))
+        manual_hanger_check.pack(side=tk.LEFT, padx=10)
+
+        # Beviteli mező a manuális függesztékszám megadásához (csak akkor aktív, ha be van pipálva)
+        manual_hanger_entry = tk.Entry(product_frame, font=('Helvetica', 12), state='disabled', width=5)
+        manual_hanger_entry.pack(side=tk.LEFT, padx=10)
+
+        def toggle_hanger_entry():
+            """Engedélyezi vagy tiltja a manuális függesztékszám mezőt a checkbox állapotától függően."""
+            if manual_hanger_var.get():
+                manual_hanger_entry.config(state='normal')
+            else:
+                manual_hanger_entry.config(state='disabled')
+
+        # Ha a checkboxot bejelölik vagy kiveszik, aktiváljuk/deaktiváljuk a mezőt
+        manual_hanger_check.config(command=toggle_hanger_entry)
+
+        # Hozzáadjuk a termék menü és mennyiség mezőt a listához, valamint a manuális hanger checkboxot és beviteli
+        # mezőt
+        self.product_entries.append((selected_product, amount_entry, manual_hanger_var, manual_hanger_entry))
 
     def save_plan(self, window, plan_name):
-        """Terv mentése az összes termékkel és mennyiséggel."""
+        """Terv mentése az összes termékkel, mennyiséggel és a függesztékszámmal."""
         if plan_name and self.product_entries:
-            for selected_product, amount_entry in self.product_entries:
+            for selected_product, amount_entry, manual_hanger_var, manual_hanger_entry in self.product_entries:
                 try:
                     product_name = selected_product.get()
+                    amount = int(amount_entry.get())
 
-                    # Mennyiség mező
-                    amount = amount_entry.get()
+                    # Product ID és items_per_hanger lekérése
+                    self.cursor.execute("SELECT id, items_per_hanger FROM products WHERE name = ?", (product_name,))
+                    product_data = self.cursor.fetchone()
+                    product_id, items_per_hanger = product_data
 
-                    # Product ID lekérése a név alapján
-                    self.cursor.execute("SELECT id FROM products WHERE name = ?", (product_name,))
-                    product_id = self.cursor.fetchone()[0]
+                    # Szükséges függesztékek számítása, ha a felhasználó nem manuálisan adja meg
+                    if not manual_hanger_var.get():
+                        required_hangers = (amount + items_per_hanger - 1) // items_per_hanger  # Felfelé kerekítés
+                    else:
+                        # Manuális függesztékszám beállítása
+                        required_hangers = int(manual_hanger_entry.get())
+
+                    # Ellenőrzés, hogy van-e elég függeszték
+                    if required_hangers > self.available_hangers:
+                        messagebox.showerror("Hiba", "Nincs elég elérhető függeszték a tervhez.")
+                        return
 
                     # Adatok mentése az adatbázisba
                     self.cursor.execute(
                         "INSERT INTO plans (plan_name, product_ID, amount, start_time, end_time, hangers_needed) "
                         "VALUES (?, ?, ?, ?, ?, ?)",
-                        (plan_name, product_id, int(amount), '', '', None))
+                        (plan_name, product_id, amount, '', '', required_hangers)
+                    )
                     self.conn.commit()
+
+                    # Függesztékek frissítése az adatbázisban
+                    self.cursor.execute("UPDATE hangers SET available = available - ?, occupied = occupied + ?",
+                                        (required_hangers, required_hangers))
+                    self.conn.commit()
+
+                    # Függesztékek frissítése a felületen
+                    self.refresh_hanger_display()
 
                 except Exception as e:
                     messagebox.showerror("Hiba", f"Hiba történt a terv mentésekor: {e}")
@@ -179,9 +221,6 @@ class ListCreatorPage(tk.Frame):
 
             # Terv hozzáadása a listához
             self.add_plan_panel(plan_name)
-
-            # Frissítjük a függesztékeket
-            self.refresh_hanger_display()
 
     def add_plan_panel(self, plan_name):
         """Panel hozzáadása a tervhez."""
