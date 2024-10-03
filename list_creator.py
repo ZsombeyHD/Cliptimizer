@@ -1,6 +1,6 @@
+import sqlite3
 import tkinter as tk
 from tkinter import Toplevel, PhotoImage, OptionMenu, StringVar, messagebox, Spinbox
-import sqlite3
 
 
 class ListCreatorPage(tk.Frame):
@@ -216,11 +216,45 @@ class ListCreatorPage(tk.Frame):
         products = self.cursor.fetchall()
 
         for product_id, amount in products:
-            self.cursor.execute("SELECT name FROM products WHERE id = ?", (product_id,))
-            product_name = self.cursor.fetchone()[0]
-            product_label = tk.Label(new_window, text=f"Termék: {product_name} - Mennyiség: {amount}",
-                                     font=('Helvetica', 12))
-            product_label.pack(pady=5)
+            # Lekérjük az összes szükséges attribútumot
+            self.cursor.execute(
+                "SELECT name, color, clip_type, items_per_hanger, total_cycle_time, photo, material_per_part FROM products WHERE id = ?",
+                (product_id,)
+            )
+            product = self.cursor.fetchone()
+            product_name, color, clip_type, items_per_hanger, total_cycle_time, photo, material_per_part = product
+
+            # Létrehozunk egy frame-et a sorba rendezett elemeknek
+            frame = tk.Frame(new_window, bg='black', bd=1)
+            frame.pack(pady=5, padx=10, fill=tk.X)
+
+            # A termék attribútumai egy sorban jelennek meg
+            name_label = tk.Label(frame, text=f"Termék neve: {product_name}", bg='white', font=('Helvetica', 12))
+            name_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+            amount_label = tk.Label(frame, text=f"Mennyiség: {amount}", bg='white', font=('Helvetica', 12))
+            amount_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+            color_label = tk.Label(frame, text=f"Termék színe: {color}", bg='white', font=('Helvetica', 12))
+            color_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+            clip_type_label = tk.Label(frame, text=f"Klipsz tipusa: {clip_type}", bg='white', font=('Helvetica', 12))
+            clip_type_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+            items_per_hanger_label = tk.Label(frame,
+                                              text=f"Függesztékre felrakható alkatrészek száma: {items_per_hanger}",
+                                              bg='white', font=('Helvetica', 12))
+            items_per_hanger_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+            cycle_time_label = tk.Label(frame, text=f"Teljes ciklusidő (másodperc): {total_cycle_time} perc",
+                                        bg='white',
+                                        font=('Helvetica', 12))
+            cycle_time_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+            material_label = tk.Label(frame, text=f"Vegyes anyagszükséglet / alkatrész (g): {material_per_part} g",
+                                      bg='white',
+                                      font=('Helvetica', 12))
+            material_label.pack(side=tk.LEFT, padx=5, pady=5)
 
     def confirm_delete(self, plan_name):
         """Terv törlésének megerősítése és törlése."""
