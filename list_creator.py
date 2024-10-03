@@ -276,6 +276,7 @@ class ListCreatorPage(tk.Frame):
         self.refresh_hanger_display()
 
 
+# A list_creator.py közvetlen elinditása
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("1920x1080")
