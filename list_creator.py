@@ -1,6 +1,10 @@
 import sqlite3
 import tkinter as tk
 from tkinter import Toplevel, PhotoImage, OptionMenu, StringVar, messagebox, Spinbox
+from fpdf import FPDF
+import openpyxl
+from openpyxl.styles import Font
+import os
 
 
 class ListCreatorPage(tk.Frame):
@@ -71,6 +75,8 @@ class ListCreatorPage(tk.Frame):
         self.add_icon = PhotoImage(file='images/add_plan_resized.png')
         self.eye_icon = PhotoImage(file='images/eye_resized.png')
         self.trash_icon = PhotoImage(file='images/trash_resized.png')
+        self.print_icon = PhotoImage(file='images/print_resized.png')
+        self.excel_icon = PhotoImage(file='images/file-excel_resized.png')
 
         # Terv létrehozása gomb
         add_button = tk.Button(left_container, image=self.add_icon, bg='white', bd=0, command=self.create_new_plan)
@@ -293,6 +299,16 @@ class ListCreatorPage(tk.Frame):
                                   command=lambda: self.confirm_delete(plan_name))
         delete_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
+        # Terv nyomtatása
+        print_button = tk.Button(panel, image=self.print_icon, bg='lightgrey', bd=0,
+                                 command=lambda: self.print_plan(plan_name))
+        print_button.pack(side=tk.RIGHT, padx=10, pady=5)
+
+        # Terv Excel-alapú exportálása
+        excel_button = tk.Button(panel, image=self.excel_icon, bg='lightgrey', bd=0,
+                                 command=lambda: self.export_plan_to_excel(plan_name))
+        excel_button.pack(side=tk.RIGHT, padx=10, pady=5)
+
     def view_plan(self, plan_name):
         """Terv megjelenítése egy új ablakban."""
         new_window = Toplevel(self)
@@ -383,6 +399,107 @@ class ListCreatorPage(tk.Frame):
 
         except Exception as e:
             messagebox.showerror("Hiba", f"Hiba történt a terv törlésekor: {e}")
+
+    def print_plan(self, plan_name):
+        """Terv nyomtatása PDF formátumban."""
+        try:
+            pdf = FPDF()
+            pdf.add_page()
+
+            # Normál és vastag betűtípus
+            pdf.add_font('DejaVu', '', 'fonts/DejaVuSans.ttf', uni=True)
+            pdf.add_font('DejaVu', 'B', 'fonts/DejaVuSans-Bold.ttf', uni=True)
+            pdf.set_font('DejaVu', '', 12)
+
+            # Cliptimizer logó
+            logo_path = 'images/cliptimizer.png'
+            pdf.image(logo_path, x=160, y=10, w=40)
+
+            # A terv neve
+            pdf.cell(200, 10, txt=f"TERV: {plan_name}", ln=True, align='C')
+
+            # A termékek megjelenítése
+            self.cursor.execute("SELECT product_ID, amount FROM plans WHERE plan_name = ?", (plan_name,))
+            products = self.cursor.fetchall()
+
+            for product_id, amount in products:
+                # Termékek attribútumai
+                self.cursor.execute(
+                    "SELECT name, color, clip_type, items_per_hanger, total_cycle_time FROM products WHERE id = ?",
+                    (product_id,)
+                )
+                product = self.cursor.fetchone()
+                product_name, color, clip_type, items_per_hanger, total_cycle_time = product
+
+                # A termék neve vastag betűs
+                pdf.set_font('DejaVu', 'B', 12)
+                pdf.cell(200, 10, txt=f"Termék neve: {product_name}", ln=True)
+
+                # A többi adat normál betűtípus
+                pdf.set_font('DejaVu', '', 12)
+                pdf.cell(200, 10, txt=f"Mennyiség: {amount}", ln=True)
+                pdf.cell(200, 10, txt=f"Szín: {color}", ln=True)
+                pdf.cell(200, 10, txt=f"Klipsz típusa: {clip_type}", ln=True)
+                pdf.cell(200, 10, txt=f"Függesztékre felrakható alkatrészek száma: {items_per_hanger}", ln=True)
+                pdf.cell(200, 10, txt=f"Teljes ciklusidő (másodperc): {total_cycle_time} perc", ln=True)
+
+            # PDF mentése
+            pdf_output_path = f"{plan_name}_terv.pdf"
+            pdf.output(pdf_output_path)
+
+            # Nyomtatási ablak megnyitása
+            import os
+            os.startfile(pdf_output_path, "print")
+
+            messagebox.showinfo("Nyomtatás", "A terv nyomtatása folyamatban.")
+
+        except Exception as e:
+            messagebox.showerror("Hiba", f"Hiba történt a terv nyomtatása során: {e}")
+
+    def export_plan_to_excel(self, plan_name):
+        """Terv exportálása Excel formátumban."""
+        try:
+            # Excel munkafüzet létrehozása
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = plan_name
+
+            bold_font = Font(bold=True)
+
+            # Adatok
+            headers = ["Termék neve", "Mennyiség", "Szín", "Klipsz típusa", "Függesztékre helyezhető darabszám",
+                       "Teljes ciklusidő (perc)"]
+            ws.append(headers)
+            for col in range(1, len(headers) + 1):
+                ws.cell(row=1, column=col).font = bold_font
+
+            # Termékek megjelenítése
+            self.cursor.execute("SELECT product_ID, amount FROM plans WHERE plan_name = ?", (plan_name,))
+            products = self.cursor.fetchall()
+
+            for product_id, amount in products:
+                # Termékek attribútumai
+                self.cursor.execute(
+                    "SELECT name, color, clip_type, items_per_hanger, total_cycle_time FROM products WHERE id = ?",
+                    (product_id,)
+                )
+                product = self.cursor.fetchone()
+                product_name, color, clip_type, items_per_hanger, total_cycle_time = product
+
+                # Adatok hozzáadása Excelhez
+                ws.append([product_name, amount, color, clip_type, items_per_hanger, total_cycle_time])
+
+            # Excel mentése
+            excel_output_path = f"{plan_name}_terv.xlsx"
+            wb.save(excel_output_path)
+
+            # Excel megnyitása
+            os.startfile(excel_output_path)
+
+            messagebox.showinfo("Exportálás", "A terv sikeresen exportálva Excel formátumba.")
+
+        except Exception as e:
+            messagebox.showerror("Hiba", f"Hiba történt a terv Excel exportálása során: {e}")
 
 
 # A list_creator.py közvetlen elinditása
