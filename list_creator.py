@@ -5,6 +5,8 @@ from fpdf import FPDF
 import openpyxl
 from openpyxl.styles import Font
 import os
+import time
+import threading
 
 
 class ListCreatorPage(tk.Frame):
@@ -14,8 +16,9 @@ class ListCreatorPage(tk.Frame):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
 
-        # A termékek mezőinek tárolására szolgáló lista inicializálása
+        # A termékek tárolására és a dinamikus visszaszámláló inicializálása
         self.product_entries = []
+        self.countdown_time = 0
 
         # Az adatbázis kapcsolat
         self.conn = sqlite3.connect('cliptimizer.db')
@@ -26,7 +29,8 @@ class ListCreatorPage(tk.Frame):
         hanger_count = self.cursor.fetchone()[0]
         if hanger_count == 0:
             # Ha üres, default érték
-            self.cursor.execute("INSERT INTO hangers (total, available, occupied) VALUES (?, ?, ?)", (70, 70, 0))
+            self.cursor.execute("INSERT INTO hangers (total, available, occupied) VALUES (?, ?, ?)",
+                                (70, 70, 0))
             self.conn.commit()
 
         # A függesztékek inicializálása
@@ -35,6 +39,13 @@ class ListCreatorPage(tk.Frame):
 
         # A függesztékek számainak lekérése
         self.update_hanger_status()
+
+        # Dinamikus visszaszámláló
+        self.countdown_label = tk.Label(self, text="Tervek teljes ciklusideje: 00:00:00", font=('Helvetica', 20),
+                                        bg='white')
+        self.countdown_label.pack(anchor=tk.NW, padx=20, pady=20)
+        self.calculate_total_cycle_time()
+        threading.Thread(target=self.update_countdown_timer, daemon=True).start()
 
         # Products táblából adat lekérése
         self.cursor.execute("SELECT name FROM products")
@@ -77,6 +88,7 @@ class ListCreatorPage(tk.Frame):
         self.trash_icon = PhotoImage(file='images/trash_resized.png')
         self.print_icon = PhotoImage(file='images/print_resized.png')
         self.excel_icon = PhotoImage(file='images/file-excel_resized.png')
+        self.duplicate_icon = PhotoImage(file='images/duplicate_resized.png')
 
         # Terv létrehozása gomb
         add_button = tk.Button(left_container, image=self.add_icon, bg='white', bd=0, command=self.create_new_plan)
@@ -113,6 +125,34 @@ class ListCreatorPage(tk.Frame):
             print("Display update failed: Missing hangers data.")
             self.available_label.config(text="Elérhető függesztékek: N/A")
             self.occupied_label.config(text="Elfoglalt függesztékek: N/A")
+
+    def calculate_total_cycle_time(self):
+        """Összeadjuk a tervekben lévő termékek teljes ciklusidejét."""
+        self.cursor.execute("""
+            SELECT p.total_cycle_time, pl.amount, pr.items_per_hanger
+            FROM plans pl
+            JOIN products pr ON pl.product_ID = pr.id
+            JOIN products p ON pl.product_ID = p.id
+        """)
+        plans = self.cursor.fetchall()
+
+        total_seconds = 0
+        for cycle_time, amount, items_per_hanger in plans:
+            # Számoljuk ki, hogy hány ciklusra van szükség
+            total_cycles_needed = (amount + items_per_hanger - 1) // items_per_hanger
+            # Minden ciklusnál hozzáadjuk a ciklusidőt
+            total_seconds += total_cycles_needed * cycle_time
+
+        self.countdown_time = total_seconds
+
+    def update_countdown_timer(self):
+        """Frissítjük a visszaszámláló kijelzését másodpercenként a fő szálban."""
+        if self.countdown_time > 0:
+            hours, remainder = divmod(self.countdown_time, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            self.countdown_label.config(text=f"Tervek teljes ciklusideje : {hours:02}:{minutes:02}:{seconds:02}")
+            self.countdown_time -= 1
+            self.after(1000, self.update_countdown_timer)
 
     def load_plans(self):
         """Tervek betöltése és panelek megjelenítése."""
@@ -252,9 +292,9 @@ class ListCreatorPage(tk.Frame):
                 # Adatok mentése
                 for plan_name, product_id, amount, required_hangers in products_to_save:
                     self.cursor.execute(
-                        "INSERT INTO plans (plan_name, product_ID, amount, start_time, end_time, hangers_needed) "
-                        "VALUES (?, ?, ?, ?, ?, ?)",
-                        (plan_name, product_id, amount, '', '', required_hangers)
+                        "INSERT INTO plans (plan_name, product_ID, amount, hangers_needed) "
+                        "VALUES (?, ?, ?, ?)",
+                        (plan_name, product_id, amount, required_hangers)
                     )
                     self.conn.commit()
 
@@ -270,6 +310,10 @@ class ListCreatorPage(tk.Frame):
 
                 # Zárjuk be az ablakot
                 window.destroy()
+
+                # Frissítjük a visszaszámláló időt
+                self.calculate_total_cycle_time()
+                self.update_countdown_timer()  # Újraindítjuk a visszaszámlálót
 
             except Exception as e:
                 messagebox.showerror("Hiba", f"Hiba történt a terv mentésekor: {e}")
@@ -308,6 +352,11 @@ class ListCreatorPage(tk.Frame):
         excel_button = tk.Button(panel, image=self.excel_icon, bg='lightgrey', bd=0,
                                  command=lambda: self.export_plan_to_excel(plan_name))
         excel_button.pack(side=tk.RIGHT, padx=10, pady=5)
+
+        # Duplikálás gomb hozzáadása
+        duplicate_button = tk.Button(panel, image=self.duplicate_icon, bg='lightgrey', bd=0,
+                                     command=lambda: self.duplicate_plan(plan_name))
+        duplicate_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
     def view_plan(self, plan_name):
         """Terv megjelenítése egy új ablakban."""
@@ -354,7 +403,7 @@ class ListCreatorPage(tk.Frame):
                                               bg='white', font=('Helvetica', 12))
             items_per_hanger_label.pack(side=tk.LEFT, padx=5, pady=5)
 
-            cycle_time_label = tk.Label(frame, text=f"Teljes ciklusidő (másodperc): {total_cycle_time} perc",
+            cycle_time_label = tk.Label(frame, text=f"Teljes ciklusidő (másodperc): {total_cycle_time}",
                                         bg='white',
                                         font=('Helvetica', 12))
             cycle_time_label.pack(side=tk.LEFT, padx=5, pady=5)
@@ -397,6 +446,10 @@ class ListCreatorPage(tk.Frame):
             # Függesztékek frissítése
             self.refresh_hanger_display()
 
+            # Frissítjük a visszaszámláló időt törlés után
+            self.calculate_total_cycle_time()
+            self.update_countdown_timer()  # Újraindítjuk a visszaszámlálót
+
         except Exception as e:
             messagebox.showerror("Hiba", f"Hiba történt a terv törlésekor: {e}")
 
@@ -419,7 +472,8 @@ class ListCreatorPage(tk.Frame):
             pdf.cell(200, 10, txt=f"TERV: {plan_name}", ln=True, align='C')
 
             # A termékek megjelenítése
-            self.cursor.execute("SELECT product_ID, amount FROM plans WHERE plan_name = ?", (plan_name,))
+            self.cursor.execute("SELECT product_ID, amount FROM plans WHERE plan_name = ?",
+                                (plan_name,))
             products = self.cursor.fetchall()
 
             for product_id, amount in products:
@@ -441,7 +495,7 @@ class ListCreatorPage(tk.Frame):
                 pdf.cell(200, 10, txt=f"Szín: {color}", ln=True)
                 pdf.cell(200, 10, txt=f"Klipsz típusa: {clip_type}", ln=True)
                 pdf.cell(200, 10, txt=f"Függesztékre felrakható alkatrészek száma: {items_per_hanger}", ln=True)
-                pdf.cell(200, 10, txt=f"Teljes ciklusidő (másodperc): {total_cycle_time} perc", ln=True)
+                pdf.cell(200, 10, txt=f"Teljes ciklusidő (másodperc): {total_cycle_time}", ln=True)
 
             # PDF mentése
             pdf_output_path = f"{plan_name}_terv.pdf"
@@ -468,13 +522,14 @@ class ListCreatorPage(tk.Frame):
 
             # Adatok
             headers = ["Termék neve", "Mennyiség", "Szín", "Klipsz típusa", "Függesztékre helyezhető darabszám",
-                       "Teljes ciklusidő (perc)"]
+                       "Teljes ciklusidő (másodperc)"]
             ws.append(headers)
             for col in range(1, len(headers) + 1):
                 ws.cell(row=1, column=col).font = bold_font
 
             # Termékek megjelenítése
-            self.cursor.execute("SELECT product_ID, amount FROM plans WHERE plan_name = ?", (plan_name,))
+            self.cursor.execute("SELECT product_ID, amount FROM plans WHERE plan_name = ?",
+                                (plan_name,))
             products = self.cursor.fetchall()
 
             for product_id, amount in products:
@@ -500,6 +555,57 @@ class ListCreatorPage(tk.Frame):
 
         except Exception as e:
             messagebox.showerror("Hiba", f"Hiba történt a terv Excel exportálása során: {e}")
+
+    def duplicate_plan(self, plan_name):
+        """Egy terv duplikálása."""
+        try:
+            # Lekérjük a tervhez tartozó termékeket és azok adatait
+            self.cursor.execute("SELECT product_ID, amount FROM plans WHERE plan_name = ?",
+                                (plan_name,))
+            products = self.cursor.fetchall()
+
+            # Új ablak megnyitása a duplikált terv szerkesztéséhez
+            new_window = Toplevel(self)
+            new_window.title(f"Duplikált terv: {plan_name}")
+            new_window.geometry("1920x1080")
+
+            # Új terv neve (opcionálisan megváltoztatható)
+            new_plan_name_entry = tk.Entry(new_window)
+            new_plan_name_entry.insert(0, f"{plan_name}_másolat")
+            new_plan_name_entry.pack(pady=10)
+
+            # Termékek és mennyiség mezők inicializálása
+            product_frame = tk.Frame(new_window)
+            product_frame.pack(expand=True, fill=tk.BOTH, pady=10)
+
+            # Termékek hozzáadása a duplikált tervhez
+            self.product_entries = []  # Ürítjük a meglévő termékbejegyzéseket
+            for product_id, amount in products:
+                # Lekérjük a termék részleteit
+                self.cursor.execute(
+                    "SELECT name FROM products WHERE id = ?",
+                    (product_id,)
+                )
+                product_name = self.cursor.fetchone()[0]
+
+                # Termék mezők megjelenítése
+                self.add_product_field(product_frame)
+                self.product_entries[-1][0].set(product_name)  # Termék neve
+                self.product_entries[-1][1].delete(0, 'end')
+                self.product_entries[-1][1].insert(0, amount)  # Mennyiség
+
+            # + ikon hozzáadása a termékekhez
+            add_product_button = tk.Button(new_window, image=self.add_icon, bg='white', bd=0,
+                                           command=lambda: self.add_product_field(product_frame))
+            add_product_button.pack(pady=10)
+
+            # Mentés gomb hozzáadása a duplikált terv mentéséhez
+            save_button = tk.Button(new_window, text="Mentés", font=('Helvetica', 14),
+                                    command=lambda: self.save_plan(new_window, new_plan_name_entry.get()))
+            save_button.pack(pady=10)
+
+        except Exception as e:
+            messagebox.showerror("Hiba", f"Hiba történt a terv duplikálása során: {e}")
 
 
 # A list_creator.py közvetlen elinditása
