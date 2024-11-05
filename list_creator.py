@@ -5,8 +5,6 @@ from fpdf import FPDF
 import openpyxl
 from openpyxl.styles import Font
 import os
-import time
-import threading
 
 
 class ListCreatorPage(tk.Frame):
@@ -16,9 +14,8 @@ class ListCreatorPage(tk.Frame):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.configure(bg='white')
 
-        # A termékek tárolására és a dinamikus visszaszámláló inicializálása
+        # A termékek tárolására való tömb inicializálása
         self.product_entries = []
-        self.countdown_time = 0
 
         # Az adatbázis kapcsolat
         self.conn = sqlite3.connect('cliptimizer.db')
@@ -39,13 +36,6 @@ class ListCreatorPage(tk.Frame):
 
         # A függesztékek számainak lekérése
         self.update_hanger_status()
-
-        # Dinamikus visszaszámláló
-        self.countdown_label = tk.Label(self, text="Tervek teljes ciklusideje: 00:00:00", font=('Helvetica', 20),
-                                        bg='white')
-        self.countdown_label.pack(anchor=tk.NW, padx=20, pady=20)
-        self.calculate_total_cycle_time()
-        threading.Thread(target=self.update_countdown_timer, daemon=True).start()
 
         # Products táblából adat lekérése
         self.cursor.execute("SELECT name FROM products")
@@ -125,34 +115,6 @@ class ListCreatorPage(tk.Frame):
             print("Display update failed: Missing hangers data.")
             self.available_label.config(text="Elérhető függesztékek: N/A")
             self.occupied_label.config(text="Elfoglalt függesztékek: N/A")
-
-    def calculate_total_cycle_time(self):
-        """Összeadjuk a tervekben lévő termékek teljes ciklusidejét."""
-        self.cursor.execute("""
-            SELECT p.total_cycle_time, pl.amount, pr.items_per_hanger
-            FROM plans pl
-            JOIN products pr ON pl.product_ID = pr.id
-            JOIN products p ON pl.product_ID = p.id
-        """)
-        plans = self.cursor.fetchall()
-
-        total_seconds = 0
-        for cycle_time, amount, items_per_hanger in plans:
-            # Számoljuk ki, hogy hány ciklusra van szükség
-            total_cycles_needed = (amount + items_per_hanger - 1) // items_per_hanger
-            # Minden ciklusnál hozzáadjuk a ciklusidőt
-            total_seconds += total_cycles_needed * cycle_time
-
-        self.countdown_time = total_seconds
-
-    def update_countdown_timer(self):
-        """Frissítjük a visszaszámláló kijelzését másodpercenként a fő szálban."""
-        if self.countdown_time > 0:
-            hours, remainder = divmod(self.countdown_time, 3600)
-            minutes, seconds = divmod(remainder, 60)
-            self.countdown_label.config(text=f"Tervek teljes ciklusideje : {hours:02}:{minutes:02}:{seconds:02}")
-            self.countdown_time -= 1
-            self.after(1000, self.update_countdown_timer)
 
     def load_plans(self):
         """Tervek betöltése és panelek megjelenítése."""
@@ -311,26 +273,45 @@ class ListCreatorPage(tk.Frame):
                 # Zárjuk be az ablakot
                 window.destroy()
 
-                # Frissítjük a visszaszámláló időt
-                self.calculate_total_cycle_time()
-                self.update_countdown_timer()  # Újraindítjuk a visszaszámlálót
-
             except Exception as e:
                 messagebox.showerror("Hiba", f"Hiba történt a terv mentésekor: {e}")
                 return
 
     def add_plan_panel(self, plan_name, hangers_needed):
-        """Panel hozzáadása a tervhez."""
+        """Panel hozzáadása a tervhez és teljes ciklusidő formázása."""
+        # Teljes ciklusidő lekérdezése a tervhez
+        self.cursor.execute("""
+            SELECT p.total_cycle_time, pl.amount, pr.items_per_hanger
+            FROM plans pl
+            JOIN products pr ON pl.product_ID = pr.id
+            JOIN products p ON pl.product_ID = p.id
+            WHERE pl.plan_name = ?
+        """, (plan_name,))
+        plans = self.cursor.fetchall()
+
+        # Teljes ciklusidő másodpercekben
+        total_cycle_time = sum(
+            ((amount + items_per_hanger - 1) // items_per_hanger) * cycle_time
+            for cycle_time, amount, items_per_hanger in plans
+        )
+
+        # Ciklusidő konvertálása
+        days, remainder = divmod(total_cycle_time, 86400)
+        hours, remainder = divmod(remainder, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        formatted_cycle_time = f"{days}n:{hours}ó:{minutes}p:{seconds}mp"
+
         panel = tk.Frame(self.plan_container, bg='lightgrey', bd=2, relief='solid')
         panel.pack(pady=5, padx=10, fill=tk.X)
 
-        # Terv neve
+        # Terv neve és attribútumok
         plan_label = tk.Label(panel, text=f"{plan_name}", bg='lightgrey', font=('Helvetica', 12))
         plan_label.pack(side=tk.LEFT, padx=10, pady=5)
 
-        # Foglalt függesztékek száma
-        hangers_label = tk.Label(panel, text=f"Elfoglalt függesztékek: {hangers_needed}", bg='lightgrey',
-                                 font=('Helvetica', 10))
+        # Elfoglalt függesztékek és ciklusidő megjelenítése
+        hangers_label = tk.Label(panel,
+                                 text=f"Elfoglalt függesztékek: {hangers_needed}, Ciklusidő: {formatted_cycle_time}",
+                                 bg='lightgrey', font=('Helvetica', 10))
         hangers_label.pack(side=tk.LEFT, padx=10, pady=5)
 
         # Terv megnézése
@@ -446,38 +427,51 @@ class ListCreatorPage(tk.Frame):
             # Függesztékek frissítése
             self.refresh_hanger_display()
 
-            # Frissítjük a visszaszámláló időt törlés után
-            self.calculate_total_cycle_time()
-            self.update_countdown_timer()  # Újraindítjuk a visszaszámlálót
-
         except Exception as e:
             messagebox.showerror("Hiba", f"Hiba történt a terv törlésekor: {e}")
+
+    from fpdf import FPDF
 
     def print_plan(self, plan_name):
         """Terv nyomtatása PDF formátumban."""
         try:
-            pdf = FPDF()
+            pdf = FPDF(orientation='L', unit='mm', format='A4')  # Fekvő
             pdf.add_page()
 
-            # Normál és vastag betűtípus
+            # Egyedi font
             pdf.add_font('DejaVu', '', 'fonts/DejaVuSans.ttf', uni=True)
             pdf.add_font('DejaVu', 'B', 'fonts/DejaVuSans-Bold.ttf', uni=True)
-            pdf.set_font('DejaVu', '', 12)
 
-            # Cliptimizer logó
-            logo_path = 'images/cliptimizer.png'
-            pdf.image(logo_path, x=160, y=10, w=40)
+            # Táblázat attribútumok
+            cell_height = 10
+            max_rows = 20
+            font_size = 12
 
-            # A terv neve
-            pdf.cell(200, 10, txt=f"TERV: {plan_name}", ln=True, align='C')
-
-            # A termékek megjelenítése
-            self.cursor.execute("SELECT product_ID, amount FROM plans WHERE plan_name = ?",
+            # Termékek megjelenítése a tervhez
+            self.cursor.execute("SELECT product_ID, amount, hangers_needed FROM plans WHERE plan_name = ?",
                                 (plan_name,))
             products = self.cursor.fetchall()
 
-            for product_id, amount in products:
-                # Termékek attribútumai
+            # Automatikus méretezés sok adat esetén
+            if len(products) > max_rows:
+                font_size = max(8, int(12 - (len(products) - max_rows) / 5))
+
+            pdf.set_font('DejaVu', 'B', font_size)
+
+            # A terv neve
+            pdf.cell(0, 15, f"TERV: {plan_name}", ln=True, align='C')
+
+            # A headerek
+            headers = ["Kód", "Mennyiség", "Szín", "Klipsz", "Függesztékre rakható",
+                       "Teljes ciklus", "Lefoglalt függeszték"]
+            col_widths = [40, 28, 23, 25, 60, 50, 55]
+            for i, header in enumerate(headers):
+                pdf.cell(col_widths[i], cell_height, header, border=1, align='C')
+            pdf.ln(cell_height)
+
+            # A termékek
+            pdf.set_font('DejaVu', '', font_size)
+            for product_id, amount, hangers_needed in products:
                 self.cursor.execute(
                     "SELECT name, color, clip_type, items_per_hanger, total_cycle_time FROM products WHERE id = ?",
                     (product_id,)
@@ -485,25 +479,24 @@ class ListCreatorPage(tk.Frame):
                 product = self.cursor.fetchone()
                 product_name, color, clip_type, items_per_hanger, total_cycle_time = product
 
-                # A termék neve vastag betűs
-                pdf.set_font('DejaVu', 'B', 12)
-                pdf.cell(200, 10, txt=f"Termék neve: {product_name}", ln=True)
+                row = [product_name, str(amount), color, clip_type, str(items_per_hanger),
+                       str(total_cycle_time), str(hangers_needed)]
 
-                # A többi adat normál betűtípus
-                pdf.set_font('DejaVu', '', 12)
-                pdf.cell(200, 10, txt=f"Mennyiség: {amount}", ln=True)
-                pdf.cell(200, 10, txt=f"Szín: {color}", ln=True)
-                pdf.cell(200, 10, txt=f"Klipsz típusa: {clip_type}", ln=True)
-                pdf.cell(200, 10, txt=f"Függesztékre felrakható alkatrészek száma: {items_per_hanger}", ln=True)
-                pdf.cell(200, 10, txt=f"Teljes ciklusidő (másodperc): {total_cycle_time}", ln=True)
+                for i, item in enumerate(row):
+                    pdf.cell(col_widths[i], cell_height, item, border=1, align='C')
+                pdf.ln(cell_height)
 
-            # PDF mentése
+            # A PDF mentése és megnyitása
             pdf_output_path = f"{plan_name}_terv.pdf"
             pdf.output(pdf_output_path)
 
-            # Nyomtatási ablak megnyitása
-            import os
-            os.startfile(pdf_output_path, "print")
+            # Try opening the PDF with error handling for systems without a default PDF viewer
+            try:
+                os.startfile(pdf_output_path, "print")
+            except FileNotFoundError:
+                messagebox.showerror("Hiba",
+                                     "Nincs alapértelmezett alkalmazás PDF-hez. Telepítsen egy PDF-olvasót pl. "
+                                     "Adobe Acrobat és legyen alapértelmezett.")
 
             messagebox.showinfo("Nyomtatás", "A terv nyomtatása folyamatban.")
 
@@ -513,27 +506,33 @@ class ListCreatorPage(tk.Frame):
     def export_plan_to_excel(self, plan_name):
         """Terv exportálása Excel formátumban."""
         try:
-            # Excel munkafüzet létrehozása
+            # Excel létrehozása
             wb = openpyxl.Workbook()
             ws = wb.active
             ws.title = plan_name
 
             bold_font = Font(bold=True)
+            title_font = Font(size=14, bold=True)
 
-            # Adatok
+            # Terv neve
+            ws.merge_cells("A1:H1")
+            ws["A1"] = plan_name.upper()
+            ws["A1"].font = title_font
+
+            # Adatfejlécek és új oszlop a lefoglalt függesztékek számának
             headers = ["Termék neve", "Mennyiség", "Szín", "Klipsz típusa", "Függesztékre helyezhető darabszám",
-                       "Teljes ciklusidő (másodperc)"]
+                       "Teljes ciklusidő (másodperc)", "Lefoglalt függesztékek száma"]
+            ws.append([""] * len(headers))
             ws.append(headers)
             for col in range(1, len(headers) + 1):
-                ws.cell(row=1, column=col).font = bold_font
+                ws.cell(row=3, column=col).font = bold_font
 
-            # Termékek megjelenítése
-            self.cursor.execute("SELECT product_ID, amount FROM plans WHERE plan_name = ?",
+            # Termékek megjelenítése a tervhez
+            self.cursor.execute("SELECT product_ID, amount, hangers_needed FROM plans WHERE plan_name = ?",
                                 (plan_name,))
             products = self.cursor.fetchall()
 
-            for product_id, amount in products:
-                # Termékek attribútumai
+            for product_id, amount, reserved_hangers in products:
                 self.cursor.execute(
                     "SELECT name, color, clip_type, items_per_hanger, total_cycle_time FROM products WHERE id = ?",
                     (product_id,)
@@ -542,7 +541,8 @@ class ListCreatorPage(tk.Frame):
                 product_name, color, clip_type, items_per_hanger, total_cycle_time = product
 
                 # Adatok hozzáadása Excelhez
-                ws.append([product_name, amount, color, clip_type, items_per_hanger, total_cycle_time])
+                ws.append(
+                    [product_name, amount, color, clip_type, items_per_hanger, total_cycle_time, reserved_hangers])
 
             # Excel mentése
             excel_output_path = f"{plan_name}_terv.xlsx"
