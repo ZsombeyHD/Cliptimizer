@@ -45,33 +45,22 @@ class DatabasePage(tk.Frame):
         rows = cursor.fetchall()
 
         for row in rows:
-            frame = tk.Frame(self.scrollable_frame, bg='black', bd=1)
+            frame = tk.Frame(self.scrollable_frame, bg='white', bd=1, relief='solid')
             frame.pack(pady=5, padx=10, fill=tk.X)
 
-            id_label = tk.Label(frame, text=f"ID: {row[0]}", bg='white', font=('Helvetica', 12))
-            id_label.pack(side=tk.LEFT, padx=5, pady=5)
+            attributes = [
+                f"ID: {row[0]}",
+                f"Név: {row[1]}",
+                f"Szín: {row[2]}",
+                f"Klipsz típusa: {row[3]}",
+                f"Függesztékre felrakható: {row[4]} db",
+                f"Függesztékenként ciklusidő: {row[5]}",
+                f"Anyagszükséglet / alkatrész (g): {row[7]}"
+            ]
 
-            name_label = tk.Label(frame, text=f"Név: {row[1]}", bg='white', font=('Helvetica', 12))
-            name_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-            color_label = tk.Label(frame, text=f"Szín: {row[2]}", bg='white', font=('Helvetica', 12))
-            color_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-            clip_type_label = tk.Label(frame, text=f"Klipsz típusa: {row[3]}", bg='white', font=('Helvetica', 12))
-            clip_type_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-            items_per_hanger_label = tk.Label(frame, text=f"Függesztékre felrakható alkatrészek száma: {row[4]}",
-                                              bg='white', font=('Helvetica', 12))
-            items_per_hanger_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-            cycle_time_label = tk.Label(frame, text=f"Teljes ciklus ideje (sec): {row[5]}", bg='white',
-                                        font=('Helvetica', 12))
-            cycle_time_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-            material_per_part_label = tk.Label(frame, text=f"Vegyes anyagszükséglet / alkatrész (g): {row[7]}",
-                                               bg='white',
-                                               font=('Helvetica', 12))
-            material_per_part_label.pack(side=tk.LEFT, padx=5, pady=5)
+            for attr in attributes:
+                label = tk.Label(frame, text=attr, font=('Helvetica', 10), bg='white')
+                label.pack(side=tk.LEFT, padx=5, pady=5)
 
     def __del__(self):
         """Destruktor, ha van nyitott kapcsolat."""

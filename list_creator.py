@@ -135,28 +135,47 @@ class ListCreatorPage(tk.Frame):
         # Ürítjük a product_entries listát, hogy ne legyen widget probléma
         self.product_entries.clear()
 
-        # Cím az új ablakban
-        label = tk.Label(new_window, text="Terv létrehozása", font=('Helvetica', 14))
+        # Fő konténer két oszlopban : bal oldalon a tartalom, jobb oldalon a függesztékek
+        main_container = tk.Frame(new_window, bg='white')
+        main_container.pack(fill=tk.BOTH, expand=True)
+
+        left_content = tk.Frame(main_container, bg='white')
+        left_content.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=20, pady=20)
+
+        right_status_display = tk.Frame(main_container, bg='white')
+        right_status_display.pack(side=tk.RIGHT, anchor=tk.N, padx=20, pady=20)
+
+        # A cím
+        label = tk.Label(left_content, text="Terv létrehozása", font=('Helvetica', 14))
         label.pack(pady=20)
 
-        # Input mező a terv nevéhez
-        plan_name_entry = tk.Entry(new_window)
+        # A függesztékek
+        available_label = tk.Label(right_status_display, text=f"Elérhető függesztékek: {self.available_hangers}",
+                                   bg='white', font=('Helvetica', 14))
+        available_label.pack(anchor=tk.W, pady=10)
+
+        occupied_label = tk.Label(right_status_display, text=f"Elfoglalt függesztékek: {self.occupied_hangers}",
+                                  bg='white', font=('Helvetica', 14))
+        occupied_label.pack(anchor=tk.W, pady=10)
+
+        # A terv neve
+        plan_name_entry = tk.Entry(left_content)
         plan_name_entry.pack(pady=10)
 
         # Frame a termékeknek és az új termék gombnak
-        product_frame = tk.Frame(new_window)
+        product_frame = tk.Frame(left_content)
         product_frame.pack(expand=True, fill=tk.BOTH, pady=10)
 
         # Kezdő termék hozzáadása
         self.add_product_field(product_frame)
 
         # Az új termék hozzáadása gomb
-        add_product_button = tk.Button(new_window, image=self.add_icon, bg='white', bd=0,
+        add_product_button = tk.Button(left_content, image=self.add_icon, bg='white', bd=0,
                                        command=lambda: self.add_product_field(product_frame))
         add_product_button.pack(pady=10)
 
         # Frame a mentés gombnak
-        button_frame = tk.Frame(new_window)
+        button_frame = tk.Frame(left_content)
         button_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
 
         # Mentés gomb hozzáadása
@@ -179,6 +198,10 @@ class ListCreatorPage(tk.Frame):
         amount_entry = Spinbox(product_frame, from_=1, to=1000, width=5)
         amount_entry.pack(side=tk.LEFT, padx=10)
 
+        # Függesztékszám kijelző
+        hanger_label = tk.Label(product_frame, text="Függesztékszám: 0", font=('Helvetica', 12))
+        hanger_label.pack(side=tk.LEFT, padx=10)
+
         # Checkbox a manuális függesztékszám megadásához
         manual_hanger_var = tk.BooleanVar()
         manual_hanger_check = tk.Checkbutton(product_frame, text="Manuális függesztékszám",
@@ -198,6 +221,23 @@ class ListCreatorPage(tk.Frame):
 
         # Ha a checkboxot bejelölik vagy kiveszik, aktiváljuk/deaktiváljuk a mezőt
         manual_hanger_check.config(command=toggle_hanger_entry)
+
+        def update_hanger_label(*args):
+            """Frissíti a szükséges függesztékszámot a megadott mennyiség alapján."""
+            product_name = selected_product.get()
+            amount = int(amount_entry.get())
+
+            # Lekérjük a termék függeszték kapacitását
+            self.cursor.execute("SELECT items_per_hanger FROM products WHERE name = ?", (product_name,))
+            items_per_hanger = self.cursor.fetchone()[0]
+
+            # Számoljuk ki a szükséges függesztékszámot
+            required_hangers = (amount + items_per_hanger - 1) // items_per_hanger
+            hanger_label.config(text=f"Függesztékszám: {required_hangers}")
+
+        # Minden változáskor újraszámítja a szükséges függesztékszámot
+        amount_entry.bind("<KeyRelease>", update_hanger_label)
+        selected_product.trace("w", update_hanger_label)
 
         self.product_entries.append((selected_product, amount_entry, manual_hanger_var, manual_hanger_entry))
 
@@ -281,21 +321,17 @@ class ListCreatorPage(tk.Frame):
         """Panel hozzáadása a tervhez és teljes ciklusidő formázása."""
         # Teljes ciklusidő lekérdezése a tervhez
         self.cursor.execute("""
-            SELECT p.total_cycle_time, pl.amount, pr.items_per_hanger
+            SELECT p.total_cycle_time, pl.hangers_needed
             FROM plans pl
-            JOIN products pr ON pl.product_ID = pr.id
             JOIN products p ON pl.product_ID = p.id
             WHERE pl.plan_name = ?
         """, (plan_name,))
         plans = self.cursor.fetchall()
 
-        # Teljes ciklusidő másodpercekben
-        total_cycle_time = sum(
-            ((amount + items_per_hanger - 1) // items_per_hanger) * cycle_time
-            for cycle_time, amount, items_per_hanger in plans
-        )
+        # Teljes ciklusidő
+        total_cycle_time = sum(hangers_needed * cycle_time for cycle_time, hangers_needed in plans)
 
-        # Ciklusidő konvertálása
+        # Ciklusidő konvertálása nap, óra, perc, másodperc formátumba
         days, remainder = divmod(total_cycle_time, 86400)
         hours, remainder = divmod(remainder, 3600)
         minutes, seconds = divmod(remainder, 60)
@@ -314,27 +350,23 @@ class ListCreatorPage(tk.Frame):
                                  bg='lightgrey', font=('Helvetica', 10))
         hangers_label.pack(side=tk.LEFT, padx=10, pady=5)
 
-        # Terv megnézése
+        # Terv megnézése, törlése, nyomtatása és exportálása
         view_button = tk.Button(panel, image=self.eye_icon, bg='lightgrey', bd=0,
                                 command=lambda: self.view_plan(plan_name))
         view_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
-        # Terv törlése
         delete_button = tk.Button(panel, image=self.trash_icon, bg='lightgrey', bd=0,
                                   command=lambda: self.confirm_delete(plan_name))
         delete_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
-        # Terv nyomtatása
         print_button = tk.Button(panel, image=self.print_icon, bg='lightgrey', bd=0,
                                  command=lambda: self.print_plan(plan_name))
         print_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
-        # Terv Excel-alapú exportálása
         excel_button = tk.Button(panel, image=self.excel_icon, bg='lightgrey', bd=0,
                                  command=lambda: self.export_plan_to_excel(plan_name))
         excel_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
-        # Duplikálás gomb hozzáadása
         duplicate_button = tk.Button(panel, image=self.duplicate_icon, bg='lightgrey', bd=0,
                                      command=lambda: self.duplicate_plan(plan_name))
         duplicate_button.pack(side=tk.RIGHT, padx=10, pady=5)
@@ -345,54 +377,49 @@ class ListCreatorPage(tk.Frame):
         new_window.title(f"Terv: {plan_name}")
         new_window.geometry("1920x1080")
 
-        label = tk.Label(new_window, text=f"Terv neve: {plan_name}", font=('Helvetica', 14))
+        label = tk.Label(new_window, text=f"Terv neve: {plan_name}", font=('Helvetica', 12, 'bold'))
         label.pack(pady=10)
 
         # A termékek megjelenítése a tervhez
-        self.cursor.execute("SELECT product_ID, amount FROM plans WHERE plan_name = ?", (plan_name,))
+        self.cursor.execute("SELECT product_ID, amount, hangers_needed FROM plans WHERE plan_name = ?",
+                            (plan_name,))
         products = self.cursor.fetchall()
 
-        for product_id, amount in products:
+        for product_id, amount, hangers_needed in products:
             # Lekérjük az összes szükséges attribútumot
             self.cursor.execute(
-                "SELECT name, color, clip_type, items_per_hanger, total_cycle_time, photo, material_per_part FROM"
-                " products WHERE id = ?",
+                "SELECT name, color, clip_type, items_per_hanger, total_cycle_time, material_per_part "
+                "FROM products WHERE id = ?",
                 (product_id,)
             )
             product = self.cursor.fetchone()
-            product_name, color, clip_type, items_per_hanger, total_cycle_time, photo, material_per_part = product
+            product_name, color, clip_type, items_per_hanger, total_cycle_time, material_per_part = product
 
-            # Létrehozunk egy frame-et a sorba rendezett elemeknek
-            frame = tk.Frame(new_window, bg='black', bd=1)
+            # Képletek az összes anyagszükséglet és a függesztékek ciklusidejéhez
+            total_material = amount * material_per_part
+            total_cycle_for_hangers = hangers_needed * total_cycle_time
+
+            # Frame a termékhez tartozó attribútumok megjelenítésére
+            frame = tk.Frame(new_window, bg='white', bd=1, relief='solid')
             frame.pack(pady=5, padx=10, fill=tk.X)
 
-            # A termék attribútumai egy sorban jelennek meg
-            name_label = tk.Label(frame, text=f"Termék neve: {product_name}", bg='white', font=('Helvetica', 12))
-            name_label.pack(side=tk.LEFT, padx=5, pady=5)
+            attributes = [
+                f"Termék neve: {product_name}",
+                f"Mennyiség: {amount}",
+                f"Szín: {color}",
+                f"Klipsz típusa: {clip_type}",
+                f"Függesztékre rakható: {items_per_hanger} db",
+                f"Függesztékenként ciklusidő: {total_cycle_time} mp",
+                f"Lefoglalt függesztékszám: {hangers_needed}",
+                f"Ennyi függesztékre teljes ciklusidő: {total_cycle_for_hangers} mp",
+                f"Anyagszükséglet / alkatrész: {material_per_part:.2f} g",
+                f"Összes anyagszükséglet: {total_material:.2f} g"
+            ]
 
-            amount_label = tk.Label(frame, text=f"Mennyiség: {amount}", bg='white', font=('Helvetica', 12))
-            amount_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-            color_label = tk.Label(frame, text=f"Termék színe: {color}", bg='white', font=('Helvetica', 12))
-            color_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-            clip_type_label = tk.Label(frame, text=f"Klipsz tipusa: {clip_type}", bg='white', font=('Helvetica', 12))
-            clip_type_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-            items_per_hanger_label = tk.Label(frame,
-                                              text=f"Függesztékre felrakható alkatrészek száma: {items_per_hanger}",
-                                              bg='white', font=('Helvetica', 12))
-            items_per_hanger_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-            cycle_time_label = tk.Label(frame, text=f"Teljes ciklusidő (másodperc): {total_cycle_time}",
-                                        bg='white',
-                                        font=('Helvetica', 12))
-            cycle_time_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-            material_label = tk.Label(frame, text=f"Vegyes anyagszükséglet / alkatrész (g): {material_per_part} g",
-                                      bg='white',
-                                      font=('Helvetica', 12))
-            material_label.pack(side=tk.LEFT, padx=5, pady=5)
+            # Attribútumok hozzáadása a frame-hez
+            for attr in attributes:
+                label = tk.Label(frame, text=attr, font=('Helvetica', 10), bg='white')
+                label.pack(side=tk.LEFT, padx=5, pady=5)
 
     def confirm_delete(self, plan_name):
         """Terv törlésének megerősítése és törlése."""
@@ -430,12 +457,10 @@ class ListCreatorPage(tk.Frame):
         except Exception as e:
             messagebox.showerror("Hiba", f"Hiba történt a terv törlésekor: {e}")
 
-    from fpdf import FPDF
-
     def print_plan(self, plan_name):
         """Terv nyomtatása PDF formátumban."""
         try:
-            pdf = FPDF(orientation='L', unit='mm', format='A4')  # Fekvő
+            pdf = FPDF(orientation='L', unit='mm', format='A4')
             pdf.add_page()
 
             # Egyedi font
@@ -443,44 +468,46 @@ class ListCreatorPage(tk.Frame):
             pdf.add_font('DejaVu', 'B', 'fonts/DejaVuSans-Bold.ttf', uni=True)
 
             # Táblázat attribútumok
-            cell_height = 10
-            max_rows = 20
-            font_size = 12
-
-            # Termékek megjelenítése a tervhez
-            self.cursor.execute("SELECT product_ID, amount, hangers_needed FROM plans WHERE plan_name = ?",
-                                (plan_name,))
-            products = self.cursor.fetchall()
-
-            # Automatikus méretezés sok adat esetén
-            if len(products) > max_rows:
-                font_size = max(8, int(12 - (len(products) - max_rows) / 5))
-
+            cell_height = 6
+            font_size = 8
             pdf.set_font('DejaVu', 'B', font_size)
 
             # A terv neve
-            pdf.cell(0, 15, f"TERV: {plan_name}", ln=True, align='C')
+            pdf.cell(0, 8, f"TERV: {plan_name}", ln=True, align='C')
 
             # A headerek
-            headers = ["Kód", "Mennyiség", "Szín", "Klipsz", "Függesztékre rakható",
-                       "Teljes ciklus", "Lefoglalt függeszték"]
-            col_widths = [40, 28, 23, 25, 60, 50, 55]
+            headers = ["Kód", "Mennyiség", "Szín", "Klipsz", "Füg-re rakható",
+                       "Füg-ként ciklusidő", "Lefoglalt füg.", "Anyagszükséglet (g)",
+                       "Ennyi füg-re teljes idő"]
+            col_widths = [30, 20, 20, 20, 40, 30, 35, 40, 35]
             for i, header in enumerate(headers):
                 pdf.cell(col_widths[i], cell_height, header, border=1, align='C')
             pdf.ln(cell_height)
 
             # A termékek
             pdf.set_font('DejaVu', '', font_size)
+            self.cursor.execute("SELECT product_ID, amount, hangers_needed FROM plans WHERE plan_name = ?",
+                                (plan_name,))
+            products = self.cursor.fetchall()
+
             for product_id, amount, hangers_needed in products:
                 self.cursor.execute(
-                    "SELECT name, color, clip_type, items_per_hanger, total_cycle_time FROM products WHERE id = ?",
+                    "SELECT name, color, clip_type, items_per_hanger, total_cycle_time, material_per_part FROM "
+                    "products WHERE id = ?",
                     (product_id,)
                 )
                 product = self.cursor.fetchone()
-                product_name, color, clip_type, items_per_hanger, total_cycle_time = product
+                product_name, color, clip_type, items_per_hanger, total_cycle_time, material_per_part = product
 
-                row = [product_name, str(amount), color, clip_type, str(items_per_hanger),
-                       str(total_cycle_time), str(hangers_needed)]
+                # Számítások
+                total_material = round(material_per_part * amount, 2)
+                total_cycle_for_hangers = hangers_needed * total_cycle_time
+
+                # Sor az adatokkal
+                row = [
+                    product_name, str(amount), color, clip_type, str(items_per_hanger),
+                    str(total_cycle_time), str(hangers_needed), f"{total_material} g", f"{total_cycle_for_hangers} mp"
+                ]
 
                 for i, item in enumerate(row):
                     pdf.cell(col_widths[i], cell_height, item, border=1, align='C')
@@ -490,13 +517,11 @@ class ListCreatorPage(tk.Frame):
             pdf_output_path = f"{plan_name}_terv.pdf"
             pdf.output(pdf_output_path)
 
-            # Try opening the PDF with error handling for systems without a default PDF viewer
             try:
                 os.startfile(pdf_output_path, "print")
             except FileNotFoundError:
-                messagebox.showerror("Hiba",
-                                     "Nincs alapértelmezett alkalmazás PDF-hez. Telepítsen egy PDF-olvasót pl. "
-                                     "Adobe Acrobat és legyen alapértelmezett.")
+                messagebox.showerror("Hiba", "Nincs alapértelmezett alkalmazás PDF-hez. "
+                                             "Telepítsen egy PDF-olvasót.")
 
             messagebox.showinfo("Nyomtatás", "A terv nyomtatása folyamatban.")
 
@@ -515,13 +540,14 @@ class ListCreatorPage(tk.Frame):
             title_font = Font(size=14, bold=True)
 
             # Terv neve
-            ws.merge_cells("A1:H1")
+            ws.merge_cells("A1:J1")
             ws["A1"] = plan_name.upper()
             ws["A1"].font = title_font
 
-            # Adatfejlécek és új oszlop a lefoglalt függesztékek számának
+            # Adatfejlécek és új oszlop a teljes anyagszükséglet számára
             headers = ["Termék neve", "Mennyiség", "Szín", "Klipsz típusa", "Függesztékre helyezhető darabszám",
-                       "Teljes ciklusidő (másodperc)", "Lefoglalt függesztékek száma"]
+                       "Függesztékenként ciklusidő (sec)", "Lefoglalt függesztékek száma", "Összes anyagszükséglet (g)",
+                       "Ennyi függesztékre teljes ciklusidő (sec)"]
             ws.append([""] * len(headers))
             ws.append(headers)
             for col in range(1, len(headers) + 1):
@@ -534,15 +560,20 @@ class ListCreatorPage(tk.Frame):
 
             for product_id, amount, reserved_hangers in products:
                 self.cursor.execute(
-                    "SELECT name, color, clip_type, items_per_hanger, total_cycle_time FROM products WHERE id = ?",
+                    "SELECT name, color, clip_type, items_per_hanger, total_cycle_time, material_per_part FROM "
+                    "products WHERE id = ?",
                     (product_id,)
                 )
                 product = self.cursor.fetchone()
-                product_name, color, clip_type, items_per_hanger, total_cycle_time = product
+                product_name, color, clip_type, items_per_hanger, total_cycle_time, material_per_part = product
+
+                # Anyagszükséglet és teljes ciklusidő számítása
+                total_material = amount * material_per_part
+                total_cycle_for_hangers = reserved_hangers * total_cycle_time
 
                 # Adatok hozzáadása Excelhez
-                ws.append(
-                    [product_name, amount, color, clip_type, items_per_hanger, total_cycle_time, reserved_hangers])
+                ws.append([product_name, amount, color, clip_type, items_per_hanger, total_cycle_time, reserved_hangers,
+                           f"{total_material:.2f}", total_cycle_for_hangers])
 
             # Excel mentése
             excel_output_path = f"{plan_name}_terv.xlsx"
