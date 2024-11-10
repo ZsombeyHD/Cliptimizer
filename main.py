@@ -8,9 +8,9 @@ import database
 import delete
 import edit
 import home
-import list_creator
+import active_list_creator
 import login
-import robot
+import plan_creator
 import search
 
 
@@ -36,11 +36,11 @@ class MainApplication(tk.Tk):
         self.contact_image = None
         self.database_image = None
         self.search_image = None
-        self.robot_image = None
+        self.plan_creator_image = None
         self.add_image = None
         self.delete_image = None
         self.edit_image = None
-        self.list_creator_image = None
+        self.active_list_creator_image = None
         self.sign_out_image = None
         self.quit_image = None
         self.home_button = None
@@ -50,8 +50,8 @@ class MainApplication(tk.Tk):
         self.add_button = None
         self.edit_button = None
         self.delete_button = None
-        self.robot_button = None
-        self.list_creator_button = None
+        self.plan_creator_button = None
+        self.active_list_creator_button = None
         self.sign_out_button = None
         self.quit_button = None
         self.menu_bar_panel = None
@@ -89,11 +89,11 @@ class MainApplication(tk.Tk):
         self.contact_image = PhotoImage(file='images/envelope_resized.png')
         self.database_image = PhotoImage(file='images/database_resized.png')
         self.search_image = PhotoImage(file='images/search_resized.png')
-        self.robot_image = PhotoImage(file='images/robot_resized.png')
+        self.plan_creator_image = PhotoImage(file='images/plan-strategy_resized.png')
         self.add_image = PhotoImage(file='images/add_resized.png')
         self.delete_image = PhotoImage(file='images/delete_resized.png')
         self.edit_image = PhotoImage(file='images/edit_resized.png')
-        self.list_creator_image = PhotoImage(file='images/list_resized.png')
+        self.active_list_creator_image = PhotoImage(file='images/list_resized.png')
         self.sign_out_image = PhotoImage(file='images/sign-out-alt_resized.png')
         self.quit_image = PhotoImage(file='images/power_resized.png')
 
@@ -102,9 +102,15 @@ class MainApplication(tk.Tk):
                                      command=self.show_home)
         self.home_button.pack(pady=(10, 10))
 
-        self.list_creator_button = tk.Button(self.menu_bar_panel, image=self.list_creator_image, bg='white', bd=0,
-                                             command=self.show_list_creator)
-        self.list_creator_button.pack(pady=(10, 10))
+        self.active_list_creator_button = tk.Button(self.menu_bar_panel, image=self.active_list_creator_image,
+                                                    bg='white',
+                                                    bd=0,
+                                                    command=self.show_active_list_creator)
+        self.active_list_creator_button.pack(pady=(10, 10))
+
+        self.plan_creator_button = tk.Button(self.menu_bar_panel, image=self.plan_creator_image, bg='white', bd=0,
+                                             command=self.show_plan_creator)
+        self.plan_creator_button.pack(pady=(10, 10))
 
         self.database_button = tk.Button(self.menu_bar_panel, image=self.database_image, bg='white', bd=0,
                                          command=self.show_database)
@@ -125,10 +131,6 @@ class MainApplication(tk.Tk):
         self.delete_button = tk.Button(self.menu_bar_panel, image=self.delete_image, bg='white', bd=0,
                                        command=self.delete_database)
         self.delete_button.pack(pady=(10, 10))
-
-        self.robot_button = tk.Button(self.menu_bar_panel, image=self.robot_image, bg='white', bd=0,
-                                      command=self.show_robot)
-        self.robot_button.pack(pady=(10, 10))
 
         self.contact_button = tk.Button(self.menu_bar_panel, image=self.contact_image, bg='white', bd=0,
                                         command=self.show_contact)
@@ -159,13 +161,13 @@ class MainApplication(tk.Tk):
         self.current_page = home.HomePage(self.pages_container)
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
-    def show_list_creator(self):
+    def show_active_list_creator(self):
         """A ListCreatorPage mutatása (második ablak)."""
         if not self.logged_in:
             return
         if self.current_page:
             self.current_page.pack_forget()
-        self.current_page = list_creator.ListCreatorPage(self.pages_container)
+        self.current_page = active_list_creator.ListCreatorPage(self.pages_container)
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_database(self):
@@ -213,13 +215,13 @@ class MainApplication(tk.Tk):
         self.current_page = delete.DeleteDatabasePage(self.pages_container)
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
-    def show_robot(self):
-        """A RobotPage mutatása (nyolcadik ablak)."""
+    def show_plan_creator(self):
+        """A PlanCreatorPage mutatása (nyolcadik ablak)."""
         if not self.logged_in:
             return
         if self.current_page:
             self.current_page.pack_forget()
-        self.current_page = robot.RobotPage(self.pages_container)
+        self.current_page = plan_creator.PlanCreatorPage(self.pages_container)
         self.current_page.pack(fill=tk.BOTH, expand=True)
 
     def show_contact(self):
