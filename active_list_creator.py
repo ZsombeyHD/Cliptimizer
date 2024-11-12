@@ -132,11 +132,12 @@ class ListCreatorPage(tk.Frame):
         new_window = Toplevel(self)
         new_window.title("Terv")
         new_window.geometry("1920x1080")
+        new_window.configure(bg='white')  # Ablak teljes háttere fehér
 
         # Ürítjük a product_entries listát, hogy ne legyen widget probléma
         self.product_entries.clear()
 
-        # Fő konténer két oszlopban : bal oldalon a tartalom, jobb oldalon a függesztékek
+        # Fő konténer két oszlopban: bal oldalon a tartalom, jobb oldalon a függesztékek
         main_container = tk.Frame(new_window, bg='white')
         main_container.pack(fill=tk.BOTH, expand=True)
 
@@ -147,7 +148,7 @@ class ListCreatorPage(tk.Frame):
         right_status_display.pack(side=tk.RIGHT, anchor=tk.N, padx=20, pady=20)
 
         # A cím
-        label = tk.Label(left_content, text="Terv létrehozása", font=('Helvetica', 14))
+        label = tk.Label(left_content, text="Terv létrehozása", font=('Helvetica', 14), bg='white')
         label.pack(pady=20)
 
         # A függesztékek
@@ -160,11 +161,11 @@ class ListCreatorPage(tk.Frame):
         occupied_label.pack(anchor=tk.W, pady=10)
 
         # A terv neve
-        plan_name_entry = tk.Entry(left_content)
+        plan_name_entry = tk.Entry(left_content, bg='white')
         plan_name_entry.pack(pady=10)
 
         # Frame a termékeknek és az új termék gombnak
-        product_frame = tk.Frame(left_content)
+        product_frame = tk.Frame(left_content, bg='white')
         product_frame.pack(expand=True, fill=tk.BOTH, pady=10)
 
         # Kezdő termék hozzáadása
@@ -176,11 +177,11 @@ class ListCreatorPage(tk.Frame):
         add_product_button.pack(pady=10)
 
         # Frame a mentés gombnak
-        button_frame = tk.Frame(left_content)
+        button_frame = tk.Frame(left_content, bg='white')
         button_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
 
         # Mentés gomb hozzáadása
-        save_button = tk.Button(button_frame, text="Mentés", font=('Helvetica', 14),
+        save_button = tk.Button(button_frame, text="Mentés", font=('Helvetica', 14), bg='white',
                                 command=lambda: self.save_plan(new_window, plan_name_entry.get()))
         save_button.pack(pady=10)
 
@@ -338,37 +339,37 @@ class ListCreatorPage(tk.Frame):
         minutes, seconds = divmod(remainder, 60)
         formatted_cycle_time = f"{days}n:{hours}ó:{minutes}p:{seconds}mp"
 
-        panel = tk.Frame(self.plan_container, bg='lightgrey', bd=2, relief='solid')
+        panel = tk.Frame(self.plan_container, bg='white', bd=2, relief='solid')
         panel.pack(pady=5, padx=10, fill=tk.X)
 
         # Terv neve és attribútumok
-        plan_label = tk.Label(panel, text=f"{plan_name}", bg='lightgrey', font=('Helvetica', 12))
+        plan_label = tk.Label(panel, text=f"{plan_name}", bg='white', font=('Helvetica', 12))
         plan_label.pack(side=tk.LEFT, padx=10, pady=5)
 
         # Elfoglalt függesztékek és ciklusidő megjelenítése
         hangers_label = tk.Label(panel,
                                  text=f"Elfoglalt függesztékek: {hangers_needed}, Ciklusidő: {formatted_cycle_time}",
-                                 bg='lightgrey', font=('Helvetica', 10))
+                                 bg='white', font=('Helvetica', 10))
         hangers_label.pack(side=tk.LEFT, padx=10, pady=5)
 
         # Terv megnézése, törlése, nyomtatása és exportálása
-        view_button = tk.Button(panel, image=self.eye_icon, bg='lightgrey', bd=0,
+        view_button = tk.Button(panel, image=self.eye_icon, bg='white', bd=0,
                                 command=lambda: self.view_plan(plan_name))
         view_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
-        delete_button = tk.Button(panel, image=self.trash_icon, bg='lightgrey', bd=0,
+        delete_button = tk.Button(panel, image=self.trash_icon, bg='white', bd=0,
                                   command=lambda: self.confirm_delete(plan_name))
         delete_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
-        print_button = tk.Button(panel, image=self.print_icon, bg='lightgrey', bd=0,
+        print_button = tk.Button(panel, image=self.print_icon, bg='white', bd=0,
                                  command=lambda: self.print_plan(plan_name))
         print_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
-        excel_button = tk.Button(panel, image=self.excel_icon, bg='lightgrey', bd=0,
+        excel_button = tk.Button(panel, image=self.excel_icon, bg='white', bd=0,
                                  command=lambda: self.export_plan_to_excel(plan_name))
         excel_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
-        duplicate_button = tk.Button(panel, image=self.duplicate_icon, bg='lightgrey', bd=0,
+        duplicate_button = tk.Button(panel, image=self.duplicate_icon, bg='white', bd=0,
                                      command=lambda: self.duplicate_plan(plan_name))
         duplicate_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
@@ -419,7 +420,7 @@ class ListCreatorPage(tk.Frame):
 
             # Attribútumok hozzáadása a frame-hez
             for attr in attributes:
-                label = tk.Label(frame, text=attr, font=('Helvetica', 10), bg='white')
+                label = tk.Label(frame, text=attr, font=('Helvetica', 8), bg='white')
                 label.pack(side=tk.LEFT, padx=5, pady=5)
 
     def confirm_delete(self, plan_name):
@@ -640,7 +641,7 @@ class ListCreatorPage(tk.Frame):
             messagebox.showerror("Hiba", f"Hiba történt a terv duplikálása során: {e}")
 
 
-# A active_list_creator.py közvetlen elinditása
+# Az active_list_creator.py közvetlen elinditása
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("1920x1080")

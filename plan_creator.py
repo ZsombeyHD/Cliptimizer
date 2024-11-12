@@ -76,6 +76,7 @@ class PlanCreatorPage(tk.Frame):
         new_window = Toplevel(self)
         new_window.title("Terv")
         new_window.geometry("1920x1080")
+        new_window.configure(bg='white')  # Ablak teljes háttere fehér
 
         # Ürítjük a product_entries listát, hogy ne legyen widget probléma
         self.product_entries.clear()
@@ -89,11 +90,11 @@ class PlanCreatorPage(tk.Frame):
         label.pack(pady=20)
 
         # A terv neve
-        plan_name_entry = tk.Entry(main_container)
+        plan_name_entry = tk.Entry(main_container, bg='white')
         plan_name_entry.pack(pady=10)
 
         # Frame a termékeknek és az új termék gombnak
-        product_frame = tk.Frame(main_container)
+        product_frame = tk.Frame(main_container, bg='white')
         product_frame.pack(expand=True, fill=tk.BOTH, pady=10)
 
         # Kezdő termék hozzáadása
@@ -105,11 +106,11 @@ class PlanCreatorPage(tk.Frame):
         add_product_button.pack(pady=10)
 
         # Frame a mentés gombnak
-        button_frame = tk.Frame(main_container)
+        button_frame = tk.Frame(main_container, bg='white')
         button_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
 
-        # Mentés gomb
-        save_button = tk.Button(button_frame, text="Mentés", font=('Helvetica', 14),
+        # Mentés gomb hozzáadása
+        save_button = tk.Button(button_frame, text="Mentés", font=('Helvetica', 14), bg='white',
                                 command=lambda: self.save_plan(new_window, plan_name_entry.get()))
         save_button.pack(pady=10)
 
@@ -217,36 +218,81 @@ class PlanCreatorPage(tk.Frame):
         minutes, seconds = divmod(remainder, 60)
         formatted_cycle_time = f"{days}n:{hours}ó:{minutes}p:{seconds}mp"
 
-        panel = tk.Frame(self.plan_container, bg='lightgrey', bd=2, relief='solid')
+        panel = tk.Frame(self.plan_container, bg='white', bd=2, relief='solid')
         panel.pack(pady=5, padx=10, fill=tk.X)
 
-        plan_label = tk.Label(panel, text=f"{plan_name}", bg='lightgrey', font=('Helvetica', 12))
+        plan_label = tk.Label(panel, text=f"{plan_name}", bg='white', font=('Helvetica', 12))
         plan_label.pack(side=tk.LEFT, padx=10, pady=5)
 
         hangers_label = tk.Label(panel,
                                  text=f"Elfoglalt függesztékek: {hangers_needed}, Ciklusidő: {formatted_cycle_time}",
-                                 bg='lightgrey', font=('Helvetica', 10))
+                                 bg='white', font=('Helvetica', 10))
         hangers_label.pack(side=tk.LEFT, padx=10, pady=5)
 
-        view_button = tk.Button(panel, image=self.eye_icon, bg='lightgrey', bd=0,
+        # Áthelyezés ikon csak akkor, ha a függesztékszám 70 vagy kevesebb
+        if hangers_needed <= 70:
+            move_icon = PhotoImage(file='images/move_to_active_resized.png')
+            move_button = tk.Button(panel, image=move_icon, bg='white', bd=0, command=lambda:
+            self.attempt_move_to_active(plan_name, hangers_needed))
+            move_button.image = move_icon  # Kép referencia megőrzése
+            move_button.pack(side=tk.RIGHT, padx=10, pady=5)
+
+        view_button = tk.Button(panel, image=self.eye_icon, bg='white', bd=0,
                                 command=lambda: self.view_plan(plan_name))
         view_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
-        delete_button = tk.Button(panel, image=self.trash_icon, bg='lightgrey', bd=0,
+        delete_button = tk.Button(panel, image=self.trash_icon, bg='white', bd=0,
                                   command=lambda: self.confirm_delete(plan_name))
         delete_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
-        print_button = tk.Button(panel, image=self.print_icon, bg='lightgrey', bd=0,
+        print_button = tk.Button(panel, image=self.print_icon, bg='white', bd=0,
                                  command=lambda: self.print_plan(plan_name))
         print_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
-        excel_button = tk.Button(panel, image=self.excel_icon, bg='lightgrey', bd=0,
+        excel_button = tk.Button(panel, image=self.excel_icon, bg='white', bd=0,
                                  command=lambda: self.export_plan_to_excel(plan_name))
         excel_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
-        duplicate_button = tk.Button(panel, image=self.duplicate_icon, bg='lightgrey', bd=0,
+        duplicate_button = tk.Button(panel, image=self.duplicate_icon, bg='white', bd=0,
                                      command=lambda: self.duplicate_plan(plan_name))
         duplicate_button.pack(side=tk.RIGHT, padx=10, pady=5)
+
+    def attempt_move_to_active(self, plan_name, required_hangers):
+        """Próbaszerű terv áthelyezése az éles tervek közé, ha elegendő függeszték van."""
+        try:
+            # Lekérdezzük az elérhető függesztékek számát az éles tervek közül
+            self.cursor.execute("SELECT available FROM hangers")
+            available_hangers = self.cursor.fetchone()[0]
+
+            # Ellenőrizzük, hogy elegendő függeszték áll-e rendelkezésre
+            if required_hangers <= available_hangers:
+                # Az éles tervekbe áthelyezés
+                self.cursor.execute("UPDATE plans SET is_draft = 0 WHERE plan_name = ?", (plan_name,))
+                self.conn.commit()
+
+                # Függesztékek számának frissítése
+                self.cursor.execute("UPDATE hangers SET available = available - ?, occupied = occupied + ?",
+                                    (required_hangers, required_hangers))
+                self.conn.commit()
+
+                # Üzenet a felhasználónak
+                messagebox.showinfo("Terv áthelyezve", f"A terv sikeresen áthelyezve az éles tervek közé:"
+                                                       f" {plan_name}")
+
+                # Panel eltávolítása a próbaszerű tervekről
+                for widget in self.plan_container.winfo_children():
+                    if isinstance(widget, tk.Frame):
+                        if widget.winfo_children()[0].cget("text") == plan_name:
+                            widget.destroy()
+
+            else:
+                # Hibaüzenet, ha nincs elegendő függeszték
+                messagebox.showerror("Hiba", f"Nincs elég elérhető függeszték az áthelyezéshez. "
+                                             f"Szükséges: {required_hangers} függeszték, Elérhető: {available_hangers} "
+                                             f"függeszték")
+
+        except Exception as e:
+            messagebox.showerror("Hiba", f"Hiba történt az áthelyezés során: {e}")
 
     def view_plan(self, plan_name):
         """Terv megjelenítése egy új ablakban."""
@@ -300,7 +346,7 @@ class PlanCreatorPage(tk.Frame):
 
             # Attribútumok hozzáadása a frame-hez
             for attr in attributes:
-                label = tk.Label(frame, text=attr, font=('Helvetica', 10), bg='white')
+                label = tk.Label(frame, text=attr, font=('Helvetica', 8), bg='white')
                 label.pack(side=tk.LEFT, padx=5, pady=5)
 
     def confirm_delete(self, plan_name):
