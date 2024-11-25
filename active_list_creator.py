@@ -229,11 +229,11 @@ class ListCreatorPage(tk.Frame):
             product_name = selected_product.get()
             amount = int(amount_entry.get())
 
-            # Lekérjük a termék függeszték kapacitását
+            # A termék függeszték kapacitásának lekérése
             self.cursor.execute("SELECT items_per_hanger FROM products WHERE name = ?", (product_name,))
             items_per_hanger = self.cursor.fetchone()[0]
 
-            # Számoljuk ki a szükséges függesztékszámot
+            # Szükséges függesztékszám képlete
             required_hangers = (amount + items_per_hanger - 1) // items_per_hanger
             hanger_label.config(text=f"Függesztékszám: {required_hangers}")
 
@@ -592,7 +592,7 @@ class ListCreatorPage(tk.Frame):
     def duplicate_plan(self, plan_name):
         """Egy terv duplikálása."""
         try:
-            # Lekérjük a tervhez tartozó termékeket és azok adatait
+            # A tervhez tartozó termékek és azok adatainak lekérése
             self.cursor.execute("SELECT product_ID, amount FROM plans WHERE plan_name = ?",
                                 (plan_name,))
             products = self.cursor.fetchall()
@@ -602,7 +602,7 @@ class ListCreatorPage(tk.Frame):
             new_window.title(f"Duplikált terv: {plan_name}")
             new_window.geometry("1920x1080")
 
-            # Új terv neve (opcionálisan megváltoztatható)
+            # Új terv neve
             new_plan_name_entry = tk.Entry(new_window)
             new_plan_name_entry.insert(0, f"{plan_name}_másolat")
             new_plan_name_entry.pack(pady=10)
@@ -612,7 +612,7 @@ class ListCreatorPage(tk.Frame):
             product_frame.pack(expand=True, fill=tk.BOTH, pady=10)
 
             # Termékek hozzáadása a duplikált tervhez
-            self.product_entries = []  # Ürítjük a meglévő termékbejegyzéseket
+            self.product_entries = []
             for product_id, amount in products:
                 # Lekérjük a termék részleteit
                 self.cursor.execute(

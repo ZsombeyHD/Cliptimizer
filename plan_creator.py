@@ -525,7 +525,7 @@ class PlanCreatorPage(tk.Frame):
             product_frame.pack(expand=True, fill=tk.BOTH, pady=10)
 
             # Termékek hozzáadása a duplikált tervhez
-            self.product_entries = []  # Ürítjük a meglévő termékbejegyzéseket
+            self.product_entries = []
             for product_id, amount in products:
                 # Lekérjük a termék részleteit
                 self.cursor.execute(
@@ -536,9 +536,9 @@ class PlanCreatorPage(tk.Frame):
 
                 # Termék mezők megjelenítése
                 self.add_product_field(product_frame)
-                self.product_entries[-1][0].set(product_name)  # Termék neve
+                self.product_entries[-1][0].set(product_name)
                 self.product_entries[-1][1].delete(0, 'end')
-                self.product_entries[-1][1].insert(0, amount)  # Mennyiség
+                self.product_entries[-1][1].insert(0, amount)
 
             # + ikon hozzáadása a termékekhez
             add_product_button = tk.Button(new_window, image=self.add_icon, bg='white', bd=0,
