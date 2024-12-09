@@ -23,7 +23,7 @@ class ContactPage(tk.Frame):
         phone_label.pack(pady=10)
         phone_entry = ttk.Entry(self, font=('Helvetica', 14), justify='center', width=20)
         phone_entry.pack(pady=5)
-        phone_entry.insert(0, "06705069814")
+        phone_entry.insert(0, "0670nekerdezztobbet")
         phone_entry.config(state='readonly')
 
         social_label = ttk.Label(self, text="Social Media", font=('Helvetica', 16, 'bold'))

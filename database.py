@@ -55,7 +55,7 @@ class DatabasePage(tk.Frame):
                 f"Klipsz típusa: {row[3]}",
                 f"Függesztékre felrakható: {row[4]} db",
                 f"Függesztékenként ciklusidő: {row[5]}",
-                f"Anyagszükséglet / alkatrész (g): {row[7]}"
+                f"Anyagszükséglet / alkatrész (g): {row[6]}"
             ]
 
             for attr in attributes:

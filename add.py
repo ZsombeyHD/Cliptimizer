@@ -1,6 +1,6 @@
 import tkinter as tk
 import sqlite3
-from tkinter import filedialog, StringVar, OptionMenu
+from tkinter import StringVar, OptionMenu
 
 
 class AddDatabasePage(tk.Frame):
@@ -50,21 +50,11 @@ class AddDatabasePage(tk.Frame):
         self.material_per_part_entry = tk.Entry(self, font=('Helvetica', 14))
         self.material_per_part_entry.pack(pady=5)
 
-        photo_label = tk.Label(self, text="Fotó hozzáadása:", bg='white', font=('Helvetica', 14))
-        photo_label.pack(pady=5)
-        self.photo_path = ""
-        add_photo_button = tk.Button(self, text="Fotó kiválasztása", font=('Helvetica', 14), command=self.add_photo)
-        add_photo_button.pack(pady=5)
-
         add_button = tk.Button(self, text="Hozzáadás", font=('Helvetica', 14), command=self.add_data)
         add_button.pack(pady=20)
 
         # Adatbázis kapcsolat
         self.conn = sqlite3.connect('cliptimizer.db')
-
-    def add_photo(self):
-        """Fotó kiválasztása és útvonalának elmentése."""
-        self.photo_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.png;*.jpeg")])
 
     def add_data(self):
         """Adatok begyűjtése, hozzáadása a products táblához."""
@@ -75,16 +65,10 @@ class AddDatabasePage(tk.Frame):
         cycle_time = self.cycle_time_entry.get()
         material_per_part = self.material_per_part_entry.get()
 
-        # Fotó bináris adatként való kezelése
-        photo_data = None
-        if self.photo_path:
-            with open(self.photo_path, 'rb') as file:
-                photo_data = file.read()
-
         cursor = self.conn.cursor()
         cursor.execute("""INSERT INTO products (name, color, clip_type, items_per_hanger, total_cycle_time, 
-        material_per_part, photo) VALUES (?, ?, ?, ?, ?, ?, ?)""", (name, color, clip_type, items_per_hanger,
-                                                                    cycle_time, material_per_part, photo_data))
+        material_per_part) VALUES (?, ?, ?, ?, ?, ?)""", (name, color, clip_type, items_per_hanger,
+                                                          cycle_time, material_per_part))
         self.conn.commit()
 
         # Beviteli mezők ürítése
@@ -93,7 +77,6 @@ class AddDatabasePage(tk.Frame):
         self.items_per_hanger_entry.delete(0, tk.END)
         self.cycle_time_entry.delete(0, tk.END)
         self.material_per_part_entry.delete(0, tk.END)
-        self.photo_path = ""
 
         self.update_pages()
 
