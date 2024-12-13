@@ -20,5 +20,5 @@ Bővítmények, amiket tartalmaz a projekt :
 
 Bejelentkezéshez adatok :
 
-Felhasználónév - cliptimizer_admin
-Jelszó - Cliptimizer123!
+- Felhasználónév - cliptimizer_admin
+- Jelszó - Cliptimizer123!
